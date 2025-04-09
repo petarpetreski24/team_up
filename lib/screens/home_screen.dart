@@ -23,6 +23,7 @@ class HomeScreen extends StatelessWidget {
       body: Consumer<EventsProvider>(
         builder: (context, eventsProvider, child) {
           final now = DateTime.now();
+          final thirtyMinutesFromNow = now.add(const Duration(minutes: 30));
           final today = DateTime(now.year, now.month, now.day);
           final allUpcomingEvents = eventsProvider.events
               .where((event) {
@@ -45,7 +46,8 @@ class HomeScreen extends StatelessWidget {
               event.organizerId != currentUser?.id &&
               !event.registeredPlayers.contains(currentUser?.id) &&
               !event.acceptedPlayers.contains(currentUser?.id) &&
-              event.acceptedPlayers.length < event.maxPlayers).toList();
+              event.acceptedPlayers.length < event.maxPlayers &&
+              event.dateTime.isAfter(thirtyMinutesFromNow)).toList();
 
           if (allUpcomingEvents.isEmpty) {
             return Center(

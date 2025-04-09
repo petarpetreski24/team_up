@@ -6,6 +6,8 @@ class SportEvent {
   final String sport;
   final DateTime dateTime;
   final String location;
+  final double latitude;
+  final double longitude;
   final int maxPlayers;
   final double pricePerPerson;
   final String description;
@@ -19,6 +21,8 @@ class SportEvent {
     required this.sport,
     required this.dateTime,
     required this.location,
+    this.latitude = 0.0,
+    this.longitude = 0.0,
     required this.maxPlayers,
     required this.pricePerPerson,
     this.description = '',
@@ -33,6 +37,8 @@ class SportEvent {
     String? sport,
     DateTime? dateTime,
     String? location,
+    double? latitude,
+    double? longitude,
     int? maxPlayers,
     double? pricePerPerson,
     String? description,
@@ -46,6 +52,8 @@ class SportEvent {
       sport: sport ?? this.sport,
       dateTime: dateTime ?? this.dateTime,
       location: location ?? this.location,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
       maxPlayers: maxPlayers ?? this.maxPlayers,
       pricePerPerson: pricePerPerson ?? this.pricePerPerson,
       description: description ?? this.description,
@@ -61,6 +69,8 @@ class SportEvent {
       'sport': sport,
       'dateTime': Timestamp.fromDate(dateTime),
       'location': location,
+      'latitude': latitude,
+      'longitude': longitude,
       'maxPlayers': maxPlayers,
       'pricePerPerson': pricePerPerson,
       'description': description,
@@ -77,6 +87,8 @@ class SportEvent {
       sport: map['sport'] ?? '',
       dateTime: (map['dateTime'] as Timestamp).toDate(),
       location: map['location'] ?? '',
+      latitude: (map['latitude'] ?? 0.0).toDouble(),
+      longitude: (map['longitude'] ?? 0.0).toDouble(),
       maxPlayers: map['maxPlayers'] ?? 0,
       pricePerPerson: (map['pricePerPerson'] ?? 0).toDouble(),
       description: map['description'] ?? '',

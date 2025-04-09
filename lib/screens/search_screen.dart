@@ -16,6 +16,7 @@ class _SearchScreenState extends State<SearchScreen> {
   String? _selectedSport;
   final TextEditingController _searchController = TextEditingController();
   final List<Sport> _sports = Sport.defaultSports;
+  bool _showOnlyFutureEvents = true; // Default to showing only future events
 
   @override
   Widget build(BuildContext context) {
@@ -63,16 +64,40 @@ class _SearchScreenState extends State<SearchScreen> {
               },
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: _showOnlyFutureEvents,
+                  onChanged: (value) {
+                    setState(() {
+                      _showOnlyFutureEvents = value ?? true;
+                    });
+                  },
+                ),
+                const Text('Show only upcoming events', style: AppTextStyles.body),
+              ],
+            ),
+          ),
           Expanded(
             child: Consumer<EventsProvider>(
               builder: (context, eventsProvider, child) {
+                final now = DateTime.now();
                 final events = eventsProvider.events.where((event) {
+                  // Filter by sport
                   bool matchesSport = _selectedSport == null ||
                       event.sport == _selectedSport;
+
+                  // Filter by search text
                   bool matchesSearch = _searchController.text.isEmpty ||
                       event.location.toLowerCase().contains(_searchController.text.toLowerCase()) ||
                       event.sport.toLowerCase().contains(_searchController.text.toLowerCase());
-                  return matchesSport && matchesSearch;
+
+                  // Filter by future events if checkbox is checked
+                  bool isFutureEvent = !_showOnlyFutureEvents || event.dateTime.isAfter(now);
+
+                  return matchesSport && matchesSearch && isFutureEvent;
                 }).toList();
 
                 if (events.isEmpty) {

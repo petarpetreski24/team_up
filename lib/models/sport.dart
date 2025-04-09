@@ -25,7 +25,7 @@ class Sport {
       skillLevels: ['Beginner', 'Intermediate', 'Advanced', 'Competition'],
     ),
     Sport(
-      name: 'Soccer',
+      name: 'Football',
       skillLevels: ['Beginner', 'Intermediate', 'Advanced', 'Semi-Pro'],
     ),
     Sport(
@@ -35,10 +35,6 @@ class Sport {
     Sport(
       name: 'Running',
       skillLevels: ['Beginner (5K)', 'Intermediate (10K)', 'Advanced (Half Marathon)', 'Elite (Marathon)'],
-    ),
-    Sport(
-      name: 'Ultimate Frisbee',
-      skillLevels: ['Beginner', 'Intermediate', 'Advanced', 'Competition'],
     ),
     Sport(
       name: 'Rock Climbing',

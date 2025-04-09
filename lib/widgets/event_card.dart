@@ -69,7 +69,7 @@ class EventCard extends StatelessWidget {
                     style: AppTextStyles.caption,
                   ),
                   Text(
-                    '€${event.pricePerPerson}/person',
+                    '${event.pricePerPerson}MKD/person',
                     style: AppTextStyles.caption.copyWith(
                       color: AppColors.primary,
                       fontWeight: FontWeight.bold,

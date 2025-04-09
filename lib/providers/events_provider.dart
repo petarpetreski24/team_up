@@ -25,6 +25,8 @@ class EventsProvider with ChangeNotifier {
           sport: data['sport'] ?? '',
           dateTime: (data['dateTime'] as Timestamp).toDate(),
           location: data['location'] ?? '',
+          latitude: (data['latitude'] ?? 0.0).toDouble(),
+          longitude: (data['longitude'] ?? 0.0).toDouble(),
           maxPlayers: data['maxPlayers'] ?? 0,
           pricePerPerson: (data['pricePerPerson'] ?? 0).toDouble(),
           description: data['description'] ?? '',
@@ -49,6 +51,8 @@ class EventsProvider with ChangeNotifier {
         'sport': event.sport,
         'dateTime': Timestamp.fromDate(event.dateTime),
         'location': event.location,
+        'latitude': event.latitude,
+        'longitude': event.longitude,
         'maxPlayers': event.maxPlayers,
         'pricePerPerson': event.pricePerPerson,
         'description': event.description,
@@ -231,6 +235,71 @@ class EventsProvider with ChangeNotifier {
     } catch (e) {
       print('Error fetching events by participant: $e');
       return [];
+    }
+  }
+
+  // Get upcoming events
+  Future<List<SportEvent>> getUpcomingEvents() async {
+    try {
+      final now = DateTime.now();
+      final snapshot = await _firestore
+          .collection('events')
+          .where('isOpen', isEqualTo: true)
+          .where('dateTime', isGreaterThan: Timestamp.fromDate(now))
+          .orderBy('dateTime')
+          .limit(10)
+          .get();
+
+      return snapshot.docs.map((doc) => SportEvent.fromFirestore(doc)).toList();
+    } catch (e) {
+      print('Error fetching upcoming events: $e');
+      return [];
+    }
+  }
+
+  // Update an event
+  Future<void> updateEvent(SportEvent event) async {
+    try {
+      await _firestore.collection('events').doc(event.id).update({
+        'sport': event.sport,
+        'dateTime': Timestamp.fromDate(event.dateTime),
+        'location': event.location,
+        'latitude': event.latitude,
+        'longitude': event.longitude,
+        'maxPlayers': event.maxPlayers,
+        'pricePerPerson': event.pricePerPerson,
+        'description': event.description,
+        'isOpen': event.isOpen,
+      });
+
+      await _fetchEvents();
+    } catch (e) {
+      print('Error updating event: $e');
+      throw Exception('Failed to update event: $e');
+    }
+  }
+
+  // Get event by ID
+  Future<SportEvent?> getEventById(String eventId) async {
+    try {
+      // First check if we already have it in memory
+      for (var event in _events) {
+        if (event.id == eventId) {
+          return event;
+        }
+      }
+
+      // If not found in memory, fetch from Firestore
+      final doc = await _firestore.collection('events').doc(eventId).get();
+
+      if (!doc.exists) {
+        return null;
+      }
+
+      return SportEvent.fromFirestore(doc);
+    } catch (e) {
+      print('Error fetching event by ID: $e');
+      return null;
     }
   }
 }
