@@ -14,6 +14,7 @@ class SportEvent {
   final List<String> registeredPlayers;
   final List<String> acceptedPlayers;
   final bool isOpen;
+  final bool isCancelled;
 
   SportEvent({
     required this.id,
@@ -29,6 +30,7 @@ class SportEvent {
     this.registeredPlayers = const [],
     this.acceptedPlayers = const [],
     this.isOpen = true,
+    this.isCancelled=false,
   });
 
   SportEvent copyWith({
@@ -45,6 +47,7 @@ class SportEvent {
     List<String>? registeredPlayers,
     List<String>? acceptedPlayers,
     bool? isOpen,
+    bool? isCancelled,
   }) {
     return SportEvent(
       id: id ?? this.id,
@@ -60,6 +63,7 @@ class SportEvent {
       registeredPlayers: registeredPlayers ?? this.registeredPlayers,
       acceptedPlayers: acceptedPlayers ?? this.acceptedPlayers,
       isOpen: isOpen ?? this.isOpen,
+      isCancelled: isCancelled ?? this.isCancelled
     );
   }
 
@@ -77,6 +81,7 @@ class SportEvent {
       'registeredPlayers': registeredPlayers,
       'acceptedPlayers': acceptedPlayers,
       'isOpen': isOpen,
+      'isCancelled': isCancelled
     };
   }
 
@@ -95,6 +100,7 @@ class SportEvent {
       registeredPlayers: List<String>.from(map['registeredPlayers'] ?? []),
       acceptedPlayers: List<String>.from(map['acceptedPlayers'] ?? []),
       isOpen: map['isOpen'] ?? true,
+      isCancelled: map['isCancelled'] ?? true,
     );
   }
 

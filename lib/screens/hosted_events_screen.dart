@@ -34,7 +34,7 @@ class HostedEventsScreen extends StatelessWidget {
           builder: (context, eventsProvider, child) {
             final now = DateTime.now();
             final hostedEvents = eventsProvider.events
-                .where((event) => event.organizerId == userId && event.isOpen)
+                .where((event) => event.organizerId == userId && !event.isCancelled)
                 .toList();
 
             final activeEvents = hostedEvents

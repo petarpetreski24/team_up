@@ -32,7 +32,7 @@ class HomeScreen extends StatelessWidget {
               event.dateTime.month,
               event.dateTime.day,
             );
-            return (eventDate.isAtSameMomentAs(today) || eventDate.isAfter(today)) && event.isOpen;
+            return (eventDate.isAtSameMomentAs(today) || eventDate.isAfter(today)) && !event.isCancelled;
           })
               .toList()
             ..sort((a, b) => a.dateTime.compareTo(b.dateTime));

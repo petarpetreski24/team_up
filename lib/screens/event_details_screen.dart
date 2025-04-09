@@ -46,13 +46,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     try {
       final eventsProvider = Provider.of<EventsProvider>(context, listen: false);
 
-      // Find the event in the existing events
       SportEvent? foundEvent = eventsProvider.events.firstWhere(
             (e) => e.id == widget.eventId,
         orElse: () => null as SportEvent, // This will throw if not found, which we handle in the catch
       );
 
-      // If not found in memory, try to fetch it from Firestore
       if (foundEvent == null) {
         // Assuming your EventsProvider has a method to fetch a single event
         foundEvent = await eventsProvider.getEventById(widget.eventId);
@@ -645,8 +643,32 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   }
 
   Widget _buildParticipantsList(bool isOrganizer) {
+    final bool isEventFull = _event!.acceptedPlayers.length >= _event!.maxPlayers;
+
     return Column(
       children: [
+        if (isEventFull && isOrganizer && _event!.registeredPlayers.length > _event!.acceptedPlayers.length)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: Card(
+              color: AppColors.warning.withOpacity(0.1),
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  children: const [
+                    Icon(Icons.info, color: AppColors.warning),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Event is full. You can still reject accepted players to make room for others.',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
         for (var participant in _participants)
           Card(
             margin: const EdgeInsets.symmetric(vertical: 4.0),
@@ -660,27 +682,41 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     ? '${_event!.sport}: ${participant.sportsLevels[_event!.sport]}'
                     : 'Skill level not specified',
               ),
-              trailing: isOrganizer && !_event!.acceptedPlayers.contains(participant.id)
-                  ? Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.check, color: AppColors.success),
-                    onPressed: () => _acceptPlayer(participant.id),
-                    tooltip: 'Accept player',
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: AppColors.error),
-                    onPressed: () => _rejectPlayer(participant.id),
-                    tooltip: 'Reject player',
-                  ),
-                ],
-              )
+              trailing: isOrganizer
+                  ? _buildPlayerActionButtons(participant, isEventFull)
                   : _event!.acceptedPlayers.contains(participant.id)
                   ? const Icon(Icons.check_circle, color: AppColors.success)
                   : null,
             ),
           ),
+      ],
+    );
+  }
+
+  Widget _buildPlayerActionButtons(User participant, bool isEventFull) {
+    // If player is already accepted
+    if (_event!.acceptedPlayers.contains(participant.id)) {
+      return Icon(Icons.check_circle, color: AppColors.success);
+    }
+
+    // If event is full, don't show accept button for pending registrations
+    if (isEventFull) {
+      return Icon(Icons.do_not_disturb, color: AppColors.error);
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.check, color: AppColors.success),
+          onPressed: () => _acceptPlayer(participant.id),
+          tooltip: 'Accept player',
+        ),
+        IconButton(
+          icon: const Icon(Icons.close, color: AppColors.error),
+          onPressed: () => _rejectPlayer(participant.id),
+          tooltip: 'Reject player',
+        ),
       ],
     );
   }

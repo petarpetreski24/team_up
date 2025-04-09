@@ -85,19 +85,16 @@ class _SearchScreenState extends State<SearchScreen> {
               builder: (context, eventsProvider, child) {
                 final now = DateTime.now();
                 final events = eventsProvider.events.where((event) {
-                  // Filter by sport
                   bool matchesSport = _selectedSport == null ||
                       event.sport == _selectedSport;
 
-                  // Filter by search text
                   bool matchesSearch = _searchController.text.isEmpty ||
                       event.location.toLowerCase().contains(_searchController.text.toLowerCase()) ||
                       event.sport.toLowerCase().contains(_searchController.text.toLowerCase());
 
-                  // Filter by future events if checkbox is checked
                   bool isFutureEvent = !_showOnlyFutureEvents || event.dateTime.isAfter(now);
 
-                  return matchesSport && matchesSearch && isFutureEvent;
+                  return matchesSport && matchesSearch && isFutureEvent && !event.isCancelled;
                 }).toList();
 
                 if (events.isEmpty) {

@@ -42,10 +42,21 @@ class EventsProvider with ChangeNotifier {
     }
   }
 
-  // Create a new event
   Future<void> createEvent(SportEvent event) async {
     try {
-      // Generate a document with auto ID
+      // Make sure organizer is included in players lists
+      List<String> registeredPlayers = List<String>.from(event.registeredPlayers);
+      List<String> acceptedPlayers = List<String>.from(event.acceptedPlayers);
+
+      // Add organizer to lists if not already there
+      if (!registeredPlayers.contains(event.organizerId)) {
+        registeredPlayers.add(event.organizerId);
+      }
+
+      if (!acceptedPlayers.contains(event.organizerId)) {
+        acceptedPlayers.add(event.organizerId);
+      }
+
       final docRef = await _firestore.collection('events').add({
         'organizerId': event.organizerId,
         'sport': event.sport,
@@ -56,14 +67,14 @@ class EventsProvider with ChangeNotifier {
         'maxPlayers': event.maxPlayers,
         'pricePerPerson': event.pricePerPerson,
         'description': event.description,
-        'registeredPlayers': event.registeredPlayers,
-        'acceptedPlayers': event.acceptedPlayers,
+        'registeredPlayers': registeredPlayers,
+        'acceptedPlayers': acceptedPlayers,
         'isOpen': event.isOpen,
       });
 
-      // Update the user's hosted events
       await _firestore.collection('users').doc(event.organizerId).update({
-        'hostedEvents': FieldValue.arrayUnion([docRef.id])
+        'hostedEvents': FieldValue.arrayUnion([docRef.id]),
+        'participatedEvents': FieldValue.arrayUnion([docRef.id])
       });
 
       await _fetchEvents();
@@ -73,7 +84,6 @@ class EventsProvider with ChangeNotifier {
     }
   }
 
-  // Register for an event
   Future<void> registerForEvent(String eventId, String userId) async {
     try {
       final eventDoc = await _firestore.collection('events').doc(eventId).get();
@@ -90,11 +100,6 @@ class EventsProvider with ChangeNotifier {
           'registeredPlayers': FieldValue.arrayUnion([userId])
         });
 
-        // Update the user's participated events
-        await _firestore.collection('users').doc(userId).update({
-          'participatedEvents': FieldValue.arrayUnion([eventId])
-        });
-
         await _fetchEvents();
       }
     } catch (e) {
@@ -103,7 +108,6 @@ class EventsProvider with ChangeNotifier {
     }
   }
 
-  // Accept a player for an event
   Future<void> acceptPlayer(String eventId, String userId) async {
     try {
       final eventDoc = await _firestore.collection('events').doc(eventId).get();
@@ -120,10 +124,13 @@ class EventsProvider with ChangeNotifier {
         final updatedAcceptedPlayers = [...event.acceptedPlayers, userId];
         final isStillOpen = updatedAcceptedPlayers.length < event.maxPlayers;
 
-        // Update the event document
         await _firestore.collection('events').doc(eventId).update({
           'acceptedPlayers': FieldValue.arrayUnion([userId]),
           'isOpen': isStillOpen
+        });
+
+        await _firestore.collection('users').doc(userId).update({
+          'participatedEvents': FieldValue.arrayUnion([eventId])
         });
 
         await _fetchEvents();
@@ -134,7 +141,6 @@ class EventsProvider with ChangeNotifier {
     }
   }
 
-  // Cancel an event
   Future<void> cancelEvent(String eventId) async {
     try {
       final eventDoc = await _firestore.collection('events').doc(eventId).get();
@@ -143,7 +149,6 @@ class EventsProvider with ChangeNotifier {
         throw Exception('Event not found');
       }
 
-      // Update the event document
       await _firestore.collection('events').doc(eventId).update({
         'isOpen': false
       });
@@ -155,7 +160,6 @@ class EventsProvider with ChangeNotifier {
     }
   }
 
-  // Reject a player from an event
   Future<void> rejectPlayer(String eventId, String playerId) async {
     try {
       final eventDoc = await _firestore.collection('events').doc(eventId).get();
@@ -164,14 +168,8 @@ class EventsProvider with ChangeNotifier {
         throw Exception('Event not found');
       }
 
-      // Update the event document
       await _firestore.collection('events').doc(eventId).update({
         'registeredPlayers': FieldValue.arrayRemove([playerId])
-      });
-
-      // Update the user's participated events
-      await _firestore.collection('users').doc(playerId).update({
-        'participatedEvents': FieldValue.arrayRemove([eventId])
       });
 
       await _fetchEvents();
@@ -181,7 +179,6 @@ class EventsProvider with ChangeNotifier {
     }
   }
 
-  // Leave an event
   Future<void> leaveEvent(String eventId, String userId) async {
     try {
       final eventDoc = await _firestore.collection('events').doc(eventId).get();
@@ -190,13 +187,11 @@ class EventsProvider with ChangeNotifier {
         throw Exception('Event not found');
       }
 
-      // Update the event document
       await _firestore.collection('events').doc(eventId).update({
         'registeredPlayers': FieldValue.arrayRemove([userId]),
         'acceptedPlayers': FieldValue.arrayRemove([userId])
       });
 
-      // Update the user's participated events
       await _firestore.collection('users').doc(userId).update({
         'participatedEvents': FieldValue.arrayRemove([eventId])
       });
@@ -208,7 +203,6 @@ class EventsProvider with ChangeNotifier {
     }
   }
 
-  // Get events by organizer ID
   Future<List<SportEvent>> getEventsByOrganizer(String organizerId) async {
     try {
       final snapshot = await _firestore
@@ -223,7 +217,6 @@ class EventsProvider with ChangeNotifier {
     }
   }
 
-  // Get events by participant ID
   Future<List<SportEvent>> getEventsByParticipant(String userId) async {
     try {
       final snapshot = await _firestore
@@ -238,7 +231,6 @@ class EventsProvider with ChangeNotifier {
     }
   }
 
-  // Get upcoming events
   Future<List<SportEvent>> getUpcomingEvents() async {
     try {
       final now = DateTime.now();
@@ -257,7 +249,6 @@ class EventsProvider with ChangeNotifier {
     }
   }
 
-  // Update an event
   Future<void> updateEvent(SportEvent event) async {
     try {
       await _firestore.collection('events').doc(event.id).update({
@@ -279,17 +270,14 @@ class EventsProvider with ChangeNotifier {
     }
   }
 
-  // Get event by ID
   Future<SportEvent?> getEventById(String eventId) async {
     try {
-      // First check if we already have it in memory
       for (var event in _events) {
         if (event.id == eventId) {
           return event;
         }
       }
 
-      // If not found in memory, fetch from Firestore
       final doc = await _firestore.collection('events').doc(eventId).get();
 
       if (!doc.exists) {
