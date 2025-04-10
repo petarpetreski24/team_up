@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/custom_button.dart';
@@ -25,8 +26,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _isLoading = false;
   String? _selectedSport;
   String? _selectedLevel;
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   final List<Sport> _sports = Sport.defaultSports;
+  int _currentStep = 0;
 
   @override
   void dispose() {
@@ -51,28 +55,66 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+      // Create sportsLevels map if sport and level are selected
+      final Map<String, String> sportsLevels = {};
+      if (_selectedSport != null && _selectedLevel != null) {
+        sportsLevels[_selectedSport!] = _selectedLevel!;
+      }
+
       final success = await authProvider.register(
         _nameController.text.trim(),
         _emailController.text.trim(),
         _passwordController.text,
+        // sportsLevels: sportsLevels,
       );
 
       if (success && mounted) {
         Navigator.of(context).pushNamedAndRemoveUntil('/main', (route) => false);
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Email already exists'),
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Email already exists',
+                    style: AppTextStyles.body.copyWith(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
             backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('An error occurred. Please try again.'),
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'An error occurred. Please try again.',
+                    style: AppTextStyles.body.copyWith(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
             backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         );
       }
@@ -83,140 +125,587 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
+  void _nextStep() {
+    if (_currentStep == 0) {
+      // Validate first part before proceeding
+      bool isValid = true;
+      if (_nameController.text.isEmpty) {
+        isValid = false;
+      }
+      if (_emailController.text.isEmpty || Validators.validateEmail(_emailController.text) != null) {
+        isValid = false;
+      }
+      if (_passwordController.text.isEmpty || Validators.validatePassword(_passwordController.text) != null) {
+        isValid = false;
+      }
+      if (_confirmPasswordController.text.isEmpty || _validateConfirmPassword(_confirmPasswordController.text) != null) {
+        isValid = false;
+      }
+
+      if (!isValid) {
+        // Show validation issues
+        _formKey.currentState?.validate();
+        return;
+      }
+    }
+
+    setState(() {
+      _currentStep = 1;
+    });
+  }
+
+  void _previousStep() {
+    setState(() {
+      _currentStep = 0;
+    });
+  }
+
+  IconData _getSportIcon(String sport) {
+    final String sportLower = sport.toLowerCase();
+
+    if (sportLower.contains('soccer') || sportLower.contains('football')) {
+      return Icons.sports_soccer;
+    } else if (sportLower.contains('basket')) {
+      return Icons.sports_basketball;
+    } else if (sportLower.contains('tennis')) {
+      return Icons.sports_tennis;
+    } else if (sportLower.contains('volley')) {
+      return Icons.sports_volleyball;
+    } else if (sportLower.contains('baseball')) {
+      return Icons.sports_baseball;
+    } else if (sportLower.contains('cricket')) {
+      return Icons.sports_cricket;
+    } else if (sportLower.contains('run') || sportLower.contains('marathon')) {
+      return Icons.directions_run;
+    } else if (sportLower.contains('golf')) {
+      return Icons.sports_golf;
+    } else if (sportLower.contains('swim')) {
+      return Icons.pool;
+    } else if (sportLower.contains('cycle') || sportLower.contains('bike')) {
+      return Icons.directions_bike;
+    } else {
+      return Icons.sports;
+    }
+  }
+
+  Color _getSportColor(String sport) {
+    final String sportLower = sport.toLowerCase();
+
+    if (sportLower.contains('soccer') || sportLower.contains('football')) {
+      return AppColors.sportGreen;
+    } else if (sportLower.contains('basket')) {
+      return AppColors.sportOrange;
+    } else if (sportLower.contains('tennis')) {
+      return AppColors.accent;
+    } else if (sportLower.contains('volley')) {
+      return AppColors.sportPink;
+    } else if (sportLower.contains('baseball')) {
+      return AppColors.sportPurple;
+    } else if (sportLower.contains('cricket')) {
+      return AppColors.sportCyan;
+    } else if (sportLower.contains('run') || sportLower.contains('marathon')) {
+      return AppColors.textSecondary;
+    } else if (sportLower.contains('golf')) {
+      return Colors.brown;
+    } else if (sportLower.contains('swim')) {
+      return AppColors.primary;
+    } else if (sportLower.contains('cycle') || sportLower.contains('bike')) {
+      return AppColors.sportRed;
+    } else {
+      return AppColors.primary;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return LoadingOverlay(
       isLoading: _isLoading,
+      message: 'Creating your account...',
       child: Scaffold(
+        backgroundColor: AppColors.background,
         appBar: AppBar(
-          title: const Text(
-            'Register',
-            style: AppTextStyles.heading3,
-          ),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
             onPressed: () => Navigator.pop(context),
           ),
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Create Account',
-                  style: AppTextStyles.heading2,
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Please fill in your details',
-                  style: AppTextStyles.body,
-                ),
-                const SizedBox(height: 32),
-                CustomTextField(
-                  label: 'Full Name',
-                  hint: 'Enter your full name',
-                  controller: _nameController,
-                  validator: Validators.validateName,
-                ),
-                const SizedBox(height: 16),
-                CustomTextField(
-                  label: 'Email',
-                  hint: 'Enter your email',
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  validator: Validators.validateEmail,
-                ),
-                const SizedBox(height: 16),
-                CustomTextField(
-                  label: 'Password',
-                  hint: 'Enter your password',
-                  obscureText: true,
-                  controller: _passwordController,
-                  validator: Validators.validatePassword,
-                ),
-                const SizedBox(height: 16),
-                CustomTextField(
-                  label: 'Confirm Password',
-                  hint: 'Confirm your password',
-                  obscureText: true,
-                  controller: _confirmPasswordController,
-                  validator: _validateConfirmPassword,
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: _selectedSport,
-                  decoration: InputDecoration(
-                    labelText: 'Preferred Sport',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // App logo and name
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primary.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.sports_handball,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        'SportMate',
+                        style: AppTextStyles.heading3.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
                   ),
-                  items: _sports.map((sport) {
-                    return DropdownMenuItem(
-                      value: sport.name,
-                      child: Text(sport.name),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedSport = value;
-                      _selectedLevel = null;
-                    });
-                  },
-                ),
-                if (_selectedSport != null) ...[
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    value: _selectedLevel,
-                    decoration: InputDecoration(
-                      labelText: 'Skill Level',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
+
+                  const SizedBox(height: 36),
+
+                  Text(
+                    'Create Account',
+                    style: AppTextStyles.heading2.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _currentStep == 0
+                        ? 'Please fill in your account details'
+                        : 'Tell us about your sporting interests',
+                    style: AppTextStyles.body.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // Progress indicator
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Container(
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: _currentStep >= 1
+                                ? AppColors.primary
+                                : AppColors.divider,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // Step 1: Account Details
+                  if (_currentStep == 0) ...[
+                    CustomTextField(
+                      label: 'Full Name',
+                      hint: 'Enter your full name',
+                      controller: _nameController,
+                      prefixIcon: const Icon(Icons.person_outline, color: AppColors.secondary),
+                      validator: Validators.validateName,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomTextField(
+                      label: 'Email',
+                      hint: 'Enter your email address',
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      prefixIcon: const Icon(Icons.email_outlined, color: AppColors.secondary),
+                      validator: Validators.validateEmail,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomTextField(
+                      label: 'Password',
+                      hint: 'Create your password',
+                      obscureText: _obscurePassword,
+                      controller: _passwordController,
+                      prefixIcon: const Icon(Icons.lock_outline, color: AppColors.secondary),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                          color: AppColors.textSecondary,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
+                      ),
+                      validator: Validators.validatePassword,
+                    ),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: Text(
+                        'Password must be at least 8 characters',
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ),
-                    items: _sports
-                        .firstWhere((sport) => sport.name == _selectedSport)
-                        .skillLevels
-                        .map((level) {
-                      return DropdownMenuItem(
-                        value: level,
-                        child: Text(level),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedLevel = value;
-                      });
-                    },
-                  ),
-                ],
-                const SizedBox(height: 32),
-                CustomButton(
-                  text: 'Register',
-                  onPressed: _handleRegister,
-                  isLoading: _isLoading,
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Already have an account?'),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Text('Login'),
+                    const SizedBox(height: 16),
+                    CustomTextField(
+                      label: 'Confirm Password',
+                      hint: 'Confirm your password',
+                      obscureText: _obscureConfirmPassword,
+                      controller: _confirmPasswordController,
+                      prefixIcon: const Icon(Icons.lock_outline, color: AppColors.secondary),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscureConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                          color: AppColors.textSecondary,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscureConfirmPassword = !_obscureConfirmPassword;
+                          });
+                        },
+                      ),
+                      validator: _validateConfirmPassword,
+                    ),
+                    const SizedBox(height: 32),
+                    CustomButton(
+                      text: 'Continue',
+                      icon: Icons.arrow_forward,
+                      onPressed: _nextStep,
                     ),
                   ],
-                ),
-              ],
+
+                  // Step 2: Sports Preferences
+                  if (_currentStep == 1) ...[
+                    Text(
+                      'What\'s your favorite sport?',
+                      style: AppTextStyles.subheading,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Sport selection grid
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        childAspectRatio: 1,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                      ),
+                      itemCount: _sports.length > 6 ? 6 : _sports.length,
+                      itemBuilder: (context, index) {
+                        final sport = _sports[index];
+                        final bool isSelected = _selectedSport == sport.name;
+                        final sportIcon = _getSportIcon(sport.name);
+                        final sportColor = _getSportColor(sport.name);
+
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _selectedSport = sport.name;
+                              _selectedLevel = null;
+                            });
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? sportColor.withOpacity(0.15)
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isSelected
+                                    ? sportColor
+                                    : AppColors.divider,
+                                width: isSelected ? 2 : 1,
+                              ),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? sportColor.withOpacity(0.2)
+                                        : sportColor.withOpacity(0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    sportIcon,
+                                    color: sportColor,
+                                    size: 28,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  sport.name,
+                                  style: AppTextStyles.caption.copyWith(
+                                    fontWeight: isSelected
+                                        ? FontWeight.w600
+                                        : FontWeight.normal,
+                                    color: isSelected
+                                        ? sportColor
+                                        : AppColors.textPrimary,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+
+                    // More sports dropdown option
+                    if (_sports.length > 6) ...[
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppColors.divider,
+                          ),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            hint: const Text("More sports..."),
+                            value: _sports.skip(6).map((s) => s.name).contains(_selectedSport)
+                                ? _selectedSport
+                                : null,
+                            isExpanded: true,
+                            icon: const Icon(Icons.keyboard_arrow_down_rounded),
+                            items: _sports.skip(6).map((sport) {
+                              return DropdownMenuItem(
+                                value: sport.name,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      _getSportIcon(sport.name),
+                                      color: _getSportColor(sport.name),
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(sport.name),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedSport = value;
+                                _selectedLevel = null;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+
+                    const SizedBox(height: 24),
+
+                    // Skill level selection
+                    if (_selectedSport != null) ...[
+                      Text(
+                        'What\'s your skill level in $_selectedSport?',
+                        style: AppTextStyles.subheading,
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Skill level cards
+                      ...(_sports
+                          .firstWhere((sport) => sport.name == _selectedSport)
+                          .skillLevels
+                          .map((level) {
+                        final bool isSelected = _selectedLevel == level;
+                        final Color sportColor = _getSportColor(_selectedSport!);
+
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _selectedLevel = level;
+                            });
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? sportColor.withOpacity(0.1)
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isSelected
+                                    ? sportColor
+                                    : AppColors.divider,
+                                width: isSelected ? 2 : 1,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  isSelected ? Icons.check_circle : Icons.circle_outlined,
+                                  color: isSelected ? sportColor : AppColors.textSecondary,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        level,
+                                        style: AppTextStyles.bodyBold.copyWith(
+                                          color: isSelected
+                                              ? sportColor
+                                              : AppColors.textPrimary,
+                                        ),
+                                      ),
+                                      Text(
+                                        _getLevelDescription(level),
+                                        style: AppTextStyles.caption.copyWith(
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList()),
+                    ] else ...[
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryLight,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.info_outline,
+                              color: AppColors.primary,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                'Select your favorite sport to specify your skill level',
+                                style: AppTextStyles.body.copyWith(
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+
+                    const SizedBox(height: 32),
+
+                    // Navigation buttons
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CustomButton(
+                            text: 'Back',
+                            icon: Icons.arrow_back,
+                            isOutlined: true,
+                            onPressed: _previousStep,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: CustomButton(
+                            text: 'Register',
+                            icon: Icons.check_circle_outline,
+                            onPressed: _handleRegister,
+                            isLoading: _isLoading,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+
+                  const SizedBox(height: 32),
+
+                  // Login link
+                  Center(
+                    child: RichText(
+                      text: TextSpan(
+                        text: 'Already have an account? ',
+                        style: AppTextStyles.body.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: 'Log In',
+                            style: AppTextStyles.bodyBold.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                Navigator.pop(context);
+                              },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  String _getLevelDescription(String level) {
+    switch (level.toLowerCase()) {
+      case 'beginner':
+        return 'Just starting out, learning the basics';
+      case 'intermediate':
+        return 'Familiar with the game, some experience';
+      case 'advanced':
+        return 'Skilled player with significant experience';
+      case 'professional':
+        return 'Expert level with competitive background';
+      default:
+        return 'Select your skill level';
+    }
   }
 }

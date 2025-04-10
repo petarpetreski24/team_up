@@ -31,42 +31,74 @@ class _MainScreenState extends State<MainScreen> {
         index: _currentIndex,
         children: _screens,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: BottomNavigationBar(
+                currentIndex: _currentIndex,
+                onTap: (index) => setState(() => _currentIndex = index),
+                items: [
+                  _buildNavItem(Icons.home_outlined, Icons.home, 'Home'),
+                  _buildNavItem(Icons.search_outlined, Icons.search, 'Search'),
+                  _buildNavItem(Icons.add_circle_outline, Icons.add_circle, 'Create'),
+                  _buildNavItem(Icons.star_outline, Icons.star, 'Hosted'),
+                  _buildNavItem(Icons.person_outline, Icons.person, 'Profile'),
+                ],
+                type: BottomNavigationBarType.fixed,
+                selectedItemColor: AppColors.primary,
+                unselectedItemColor: AppColors.textSecondary,
+                showSelectedLabels: true,
+                showUnselectedLabels: true,
+                selectedFontSize: 12,
+                unselectedFontSize: 12,
+                elevation: 0,
+                backgroundColor: Colors.white,
+              ),
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search_outlined),
-            activeIcon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle_outline),
-            activeIcon: Icon(Icons.add_circle),
-            label: 'Create',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.star_outline),
-            activeIcon: Icon(Icons.star),
-            label: 'Hosted',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: Colors.grey,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
+        ),
       ),
+      floatingActionButton: _currentIndex == 2 ? null : FloatingActionButton(
+        onPressed: () {
+          setState(() => _currentIndex = 2); // Navigate to Create screen
+        },
+        backgroundColor: AppColors.primary,
+        child: const Icon(Icons.add, color: Colors.white),
+        elevation: 4,
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+    );
+  }
+
+  BottomNavigationBarItem _buildNavItem(
+      IconData icon,
+      IconData activeIcon,
+      String label
+      ) {
+    return BottomNavigationBarItem(
+      icon: Padding(
+        padding: const EdgeInsets.only(bottom: 4),
+        child: Icon(icon),
+      ),
+      activeIcon: Padding(
+        padding: const EdgeInsets.only(bottom: 4),
+        child: Icon(activeIcon),
+      ),
+      label: label,
+      tooltip: '',
     );
   }
 }

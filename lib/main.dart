@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_storage/firebase_storage.dart'; // Add this import
 import 'providers/auth_provider.dart';
 import 'providers/events_provider.dart';
 import 'screens/main_screen.dart';
@@ -9,11 +10,22 @@ import 'screens/register_screen.dart';
 import 'screens/event_details_screen.dart';
 import 'screens/create_event_screen.dart';
 import 'utils/constants.dart';
+import 'firebase_options.dart'; // Import this if you have it
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(MyApp());
+
+  // Initialize Firebase with proper options
+  await Firebase.initializeApp(
+    // If you have firebase_options.dart, uncomment this line:
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Initialize Firebase Storage
+  FirebaseStorage.instance.setMaxUploadRetryTime(const Duration(seconds: 20));
+  FirebaseStorage.instance.setMaxOperationRetryTime(const Duration(seconds: 20));
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -39,6 +51,12 @@ class MyApp extends StatelessWidget {
           ),
         ),
         home: const AuthWrapper(),
+        routes: {
+          '/login': (context) => const LoginScreen(),
+          '/register': (context) => const RegisterScreen(),
+          '/main': (context) => const MainScreen(),
+          '/create-event': (context) => const CreateEventScreen(),
+        },
         onGenerateRoute: (settings) {
           switch (settings.name) {
             case '/':

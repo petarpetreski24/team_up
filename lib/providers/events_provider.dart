@@ -12,7 +12,6 @@ class EventsProvider with ChangeNotifier {
     _fetchEvents();
   }
 
-  // Fetch all events from Firestore
   Future<void> _fetchEvents() async {
     try {
       final snapshot = await _firestore.collection('events').get();
@@ -33,6 +32,7 @@ class EventsProvider with ChangeNotifier {
           registeredPlayers: List<String>.from(data['registeredPlayers'] ?? []),
           acceptedPlayers: List<String>.from(data['acceptedPlayers'] ?? []),
           isOpen: data['isOpen'] ?? true,
+          isCancelled: data['isCancelled'] ?? false,
         );
       }).toList();
 
@@ -149,9 +149,34 @@ class EventsProvider with ChangeNotifier {
         throw Exception('Event not found');
       }
 
+      final event = SportEvent.fromFirestore(eventDoc);
+      final List<String> registeredPlayers = List<String>.from(event.registeredPlayers);
+      final List<String> acceptedPlayers = List<String>.from(event.acceptedPlayers);
+
       await _firestore.collection('events').doc(eventId).update({
-        'isOpen': false
+        'isOpen': false,
+        'isCancelled': true,
+        'registeredPlayers': [],
+        'acceptedPlayers': [],
       });
+
+      final batch = _firestore.batch();
+
+      final allPlayers = {...registeredPlayers, ...acceptedPlayers}.toList();
+
+      for (final playerId in allPlayers) {
+        final userRef = _firestore.collection('users').doc(playerId);
+        batch.update(userRef, {
+          'participatedEvents': FieldValue.arrayRemove([eventId])
+        });
+      }
+
+      final organizerRef = _firestore.collection('users').doc(event.organizerId);
+      batch.update(organizerRef, {
+        'hostedEvents': FieldValue.arrayRemove([eventId])
+      });
+
+      await batch.commit();
 
       await _fetchEvents();
     } catch (e) {

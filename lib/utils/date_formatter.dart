@@ -6,4 +6,8 @@ class DateFormatter {
   static String formatEventTime(DateTime date) {
     return '${date.hour}:${date.minute.toString().padLeft(2, '0')}';
   }
+
+  static bool isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
 }

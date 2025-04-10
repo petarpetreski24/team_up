@@ -1,11 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart'; // Add this import
 import '../models/user.dart' as app;
 
 class AuthProvider with ChangeNotifier {
   final firebase_auth.FirebaseAuth _auth = firebase_auth.FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   app.User? _currentUser;
   app.User? get currentUser => _currentUser;
@@ -57,17 +61,14 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Register a new user
   Future<bool> register(String name, String email, String password) async {
     try {
-      // Create the user in Firebase Auth
       final userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
       if (userCredential.user != null) {
-        // Create a new user document in Firestore
         final newUser = app.User(
           id: userCredential.user!.uid,
           name: name,
@@ -93,7 +94,6 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Logout the current user
   Future<void> logout() async {
     try {
       await _auth.signOut();
@@ -104,7 +104,6 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Update user profile
   Future<void> updateProfile({
     required String name,
     required Map<String, String> sportsLevels,
@@ -132,7 +131,6 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Get user by ID
   Future<app.User?> getUserById(String id) async {
     try {
       final userDoc = await _firestore.collection('users').doc(id).get();
@@ -146,6 +144,53 @@ class AuthProvider with ChangeNotifier {
       return null;
     } catch (e) {
       print('Error fetching user: $e');
+      return null;
+    }
+  }
+
+  Future<String?> uploadProfileImage(File imageFile) async {
+    if (_currentUser == null) {
+      throw Exception('User not logged in');
+    }
+
+    try {
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final path = 'profile_images/${_currentUser!.id}_$timestamp.jpg';
+
+      final storageRef = _storage.ref().child(path);
+
+      final uploadTask = storageRef.putFile(
+        imageFile,
+        SettableMetadata(contentType: 'image/jpeg'),
+      );
+
+      uploadTask.snapshotEvents.listen((taskSnapshot) {
+        final progress = taskSnapshot.bytesTransferred / taskSnapshot.totalBytes;
+        print('Upload progress: ${(progress * 100).toStringAsFixed(2)}%');
+      }, onError: (e) {
+        print('Upload error: $e');
+      });
+
+      // Wait for the upload to complete
+      final snapshot = await uploadTask;
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+
+      await _firestore.collection('users').doc(_currentUser!.id).update({
+        'profileImageUrl': downloadUrl,
+      });
+
+      _currentUser = _currentUser!.copyWith(profileImageUrl: downloadUrl);
+      notifyListeners();
+
+      return downloadUrl;
+    } on FirebaseException catch (e) {
+      print('Firebase error uploading profile image: $e');
+      if (e.code == 'object-not-found') {
+        print('Storage bucket not found or inaccessible. Check Firebase Console.');
+      }
+      return null;
+    } catch (e) {
+      print('Error uploading profile image: $e');
       return null;
     }
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:team_up/screens/user_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
@@ -75,8 +76,23 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to load event: ${e.toString()}'),
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Failed to load event: ${e.toString()}',
+                    style: AppTextStyles.body.copyWith(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
             backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         );
       }
@@ -162,9 +178,24 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
     if (_event!.latitude == 0 && _event!.longitude == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('This event does not have a valid location'),
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white),
+              const SizedBox(width: 8),
+              const Expanded(
+                child: Text(
+                  'This event does not have a valid location',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
           backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
         ),
       );
       return;
@@ -188,9 +219,24 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Could not open Google Maps'),
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.error_outline, color: Colors.white),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      'Could not open Google Maps',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
               backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
           );
         }
@@ -200,8 +246,23 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error opening maps: ${e.toString()}'),
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Error opening maps: ${e.toString()}',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
             backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         );
       }
@@ -227,9 +288,24 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Successfully registered for the event'),
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle_outline, color: Colors.white),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Text(
+                    'Successfully registered for the event',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
             backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         );
       }
@@ -237,8 +313,23 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to register: ${e.toString()}'),
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Failed to register: ${e.toString()}',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
             backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         );
       }
@@ -259,6 +350,10 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       return;
     }
 
+    // Show confirmation dialog
+    bool confirm = await _showLeaveConfirmationDialog();
+    if (!confirm) return;
+
     setState(() => _isLeaving = true);
 
     try {
@@ -268,9 +363,24 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Successfully left the event'),
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle_outline, color: Colors.white),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Text(
+                    'Successfully left the event',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
             backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         );
       }
@@ -278,8 +388,23 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to leave event: ${e.toString()}'),
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Failed to leave event: ${e.toString()}',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
             backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         );
       }
@@ -288,6 +413,33 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
         setState(() => _isLeaving = false);
       }
     }
+  }
+
+  Future<bool> _showLeaveConfirmationDialog() async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Leave Event'),
+        content: const Text('Are you sure you want to leave this event?'),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+            ),
+            child: const Text('Leave'),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
   }
 
   Future<void> _acceptPlayer(String playerId) async {
@@ -302,9 +454,24 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Player accepted successfully'),
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle_outline, color: Colors.white),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Text(
+                    'Player accepted successfully',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
             backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         );
       }
@@ -312,8 +479,23 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to accept player: ${e.toString()}'),
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Failed to accept player: ${e.toString()}',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
             backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         );
       }
@@ -332,9 +514,24 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Player rejected successfully'),
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle_outline, color: Colors.white),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Text(
+                    'Player rejected successfully',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
             backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         );
       }
@@ -342,11 +539,98 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to reject player: ${e.toString()}'),
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Failed to reject player: ${e.toString()}',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
             backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         );
       }
+    }
+  }
+
+  IconData _getSportIcon(String sport) {
+    final String sportLower = sport.toLowerCase();
+
+    if (sportLower.contains('soccer') || sportLower.contains('football')) {
+      return Icons.sports_soccer;
+    } else if (sportLower.contains('basket')) {
+      return Icons.sports_basketball;
+    } else if (sportLower.contains('tennis')) {
+      return Icons.sports_tennis;
+    } else if (sportLower.contains('volley')) {
+      return Icons.sports_volleyball;
+    } else if (sportLower.contains('baseball')) {
+      return Icons.sports_baseball;
+    } else if (sportLower.contains('cricket')) {
+      return Icons.sports_cricket;
+    } else if (sportLower.contains('run') || sportLower.contains('marathon')) {
+      return Icons.directions_run;
+    } else if (sportLower.contains('golf')) {
+      return Icons.sports_golf;
+    } else if (sportLower.contains('swim')) {
+      return Icons.pool;
+    } else if (sportLower.contains('cycle') || sportLower.contains('bike')) {
+      return Icons.directions_bike;
+    } else if (sportLower.contains('ping pong') || sportLower.contains('table tennis')) {
+      return Icons.sports_tennis; // Using tennis icon as fallback for ping pong
+    } else if (sportLower.contains('rock') && sportLower.contains('climb')) {
+      return Icons.terrain; // Mountain icon for rock climbing
+    } else if (sportLower.contains('yoga')) {
+      return Icons.self_improvement; // Yoga pose icon
+    } else if (sportLower.contains('box') || sportLower.contains('boxing')) {
+      return Icons.sports_mma; // MMA/boxing icon
+    } else {
+      return Icons.sports;
+    }
+  }
+
+  Color _getSportColor(String sport) {
+    final String sportLower = sport.toLowerCase();
+
+    if (sportLower.contains('soccer') || sportLower.contains('football')) {
+      return AppColors.sportGreen;
+    } else if (sportLower.contains('basket')) {
+      return AppColors.sportOrange;
+    } else if (sportLower.contains('tennis')) {
+      return AppColors.accent;
+    } else if (sportLower.contains('volley')) {
+      return AppColors.sportPink;
+    } else if (sportLower.contains('baseball')) {
+      return AppColors.sportPurple;
+    } else if (sportLower.contains('cricket')) {
+      return AppColors.sportCyan;
+    } else if (sportLower.contains('run') || sportLower.contains('marathon')) {
+      return AppColors.textSecondary;
+    } else if (sportLower.contains('golf')) {
+      return Colors.brown;
+    } else if (sportLower.contains('swim')) {
+      return AppColors.primary;
+    } else if (sportLower.contains('cycle') || sportLower.contains('bike')) {
+      return AppColors.sportRed;
+    } else if (sportLower.contains('ping pong') || sportLower.contains('table tennis')) {
+      return Colors.teal; // Teal for ping pong
+    } else if (sportLower.contains('rock') && sportLower.contains('climb')) {
+      return Colors.brown[700] ?? Colors.brown; // Dark brown for rock climbing
+    } else if (sportLower.contains('yoga')) {
+      return Colors.purple[300] ?? Colors.purple; // Light purple for yoga
+    } else if (sportLower.contains('box') || sportLower.contains('boxing')) {
+      return Colors.red[900] ?? Colors.red; // Dark red for boxing
+    } else {
+      return AppColors.primary;
     }
   }
 
@@ -355,6 +639,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     if (_isLoading) {
       return Scaffold(
         appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
           title: const Text('Loading...'),
         ),
         body: const Center(
@@ -366,10 +652,36 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     if (_event == null) {
       return Scaffold(
         appBar: AppBar(
+          elevation: 0,
           title: const Text('Event not found'),
         ),
-        body: const Center(
-          child: Text('Event not found or has been deleted.'),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.event_busy,
+                size: 80,
+                color: AppColors.textDisabled,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Event not found or has been deleted.',
+                // style: AppTextStyles.subheading,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.arrow_back),
+                label: const Text('Back to Events'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -380,262 +692,577 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     final isAccepted = _event!.acceptedPlayers.contains(currentUser?.id);
     final isPastEvent = _event!.dateTime.isBefore(DateTime.now());
     final canRegister = !isPastEvent && _event!.isOpen && !isOrganizer && !isRegistered;
+    final sportColor = _getSportColor(_event!.sport);
 
     final dateFormat = DateFormat('EEE, MMM d, yyyy');
     final timeFormat = DateFormat('h:mm a');
 
     return Scaffold(
+      backgroundColor: AppColors.background,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(
-          _event!.sport,
-          style: AppTextStyles.heading3,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        leading: Container(
+          margin: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.black.withOpacity(0.3),
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
         ),
         actions: [
           if (isOrganizer)
-            PopupMenuButton(
-              itemBuilder: (context) => [
-                const PopupMenuItem(
-                  value: 'edit',
-                  child: Text('Edit Event'),
-                ),
-                const PopupMenuItem(
-                  value: 'cancel',
-                  child: Text('Cancel Event'),
-                ),
-              ],
-              onSelected: (value) {
-                if (value == 'edit') {
-                  // Navigate to edit screen with event data
-                } else if (value == 'cancel') {
-                  _showCancelEventDialog();
-                }
-              },
-            ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Map section
-            SizedBox(
-              height: 250,
-              width: double.infinity,
-              child: Stack(
-                children: [
-                  GoogleMap(
-                    initialCameraPosition: CameraPosition(
-                      target: LatLng(_event!.latitude, _event!.longitude),
-                      zoom: 14,
+            Container(
+              margin: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.black.withOpacity(0.3),
+              ),
+              child: PopupMenuButton(
+                icon: const Icon(Icons.more_vert, color: Colors.white),
+                position: PopupMenuPosition.under,
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'edit',
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit, size: 18),
+                        SizedBox(width: 8),
+                        Text('Edit Event'),
+                      ],
                     ),
-                    markers: _markers,
-                    onMapCreated: (controller) {
-                      _mapController = controller;
-                    },
-                    zoomControlsEnabled: false,
-                    mapToolbarEnabled: false,
-                    myLocationEnabled: true,
-                    myLocationButtonEnabled: false,
                   ),
-                  Positioned(
-                    bottom: 16,
-                    right: 16,
-                    child: FloatingActionButton(
-                      mini: true,
-                      backgroundColor: AppColors.primary,
-                      onPressed: () {
-                        _mapController?.animateCamera(
-                          CameraUpdate.newLatLngZoom(
-                            LatLng(_event!.latitude, _event!.longitude),
-                            14,
-                          ),
-                        );
-                      },
-                      child: const Icon(Icons.center_focus_strong),
+                  const PopupMenuItem(
+                    value: 'cancel',
+                    child: Row(
+                      children: [
+                        Icon(Icons.cancel, size: 18, color: AppColors.error),
+                        SizedBox(width: 8),
+                        Text('Cancel Event', style: TextStyle(color: AppColors.error)),
+                      ],
                     ),
                   ),
                 ],
+                onSelected: (value) {
+                  if (value == 'edit') {
+                    // Navigate to edit screen with event data
+                  } else if (value == 'cancel') {
+                    _showCancelEventDialog();
+                  }
+                },
               ),
             ),
-
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Get Directions button
-                  CustomButton(
-                    text: 'Get Directions',
-                    // icon: Icons.directions,
-                    onPressed: _openDirections,
-                    // color: AppColors.secondary,
+        ],
+      ),
+      body: Column(
+        children: [
+          // Map header
+          SizedBox(
+            height: 300,
+            width: double.infinity,
+            child: Stack(
+              children: [
+                // Map
+                GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(_event!.latitude, _event!.longitude),
+                    zoom: 14,
                   ),
-
-                  const SizedBox(height: 24),
-
-                  // Event details
-                  Text(
-                    'Event Details',
-                    // style: AppTextStyles.heading4,
-                  ),
-                  const SizedBox(height: 8),
-
-                  _buildDetailRow('Sport', _event!.sport),
-                  _buildDetailRow('Date', dateFormat.format(_event!.dateTime)),
-                  _buildDetailRow('Time', timeFormat.format(_event!.dateTime)),
-                  _buildDetailRow('Location', _event!.location),
-                  _buildDetailRow('Max Players', _event!.maxPlayers.toString()),
-                  _buildDetailRow('Price per Person', '${_event!.pricePerPerson.toStringAsFixed(2)} MKD'),
-
-                  if (_event!.description.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    Text(
-                      'Description',
-                      // style: AppTextStyles.heading4,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(_event!.description),
-                  ],
-
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  markers: _markers,
+                  onMapCreated: (controller) {
+                    _mapController = controller;
+                  },
+                  zoomControlsEnabled: false,
+                  mapToolbarEnabled: false,
+                  myLocationEnabled: true,
+                  myLocationButtonEnabled: false,
+                ),
+                // Map controls
+                Positioned(
+                  bottom: 16,
+                  right: 16,
+                  child: Column(
                     children: [
-                      Text(
-                        'Participants (${_event!.acceptedPlayers.length}/${_event!.maxPlayers})',
-                        // style: AppTextStyles.heading4,
-                      ),
-                      Text(
-                        isPastEvent ? 'Event Ended' :
-                        _event!.isOpen ? 'Open' : 'Closed',
-                        style: TextStyle(
-                          color: isPastEvent ? AppColors.textSecondary :
-                          _event!.isOpen ? AppColors.success : AppColors.error,
-                          fontWeight: FontWeight.bold,
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.my_location, color: AppColors.primary),
+                          onPressed: () {
+                            _mapController?.animateCamera(
+                              CameraUpdate.newLatLngZoom(
+                                LatLng(_event!.latitude, _event!.longitude),
+                                14,
+                              ),
+                            );
+                          },
+                          tooltip: 'Center Map',
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                ),
+              ],
+            ),
+          ),
 
-                  if (_loadingUsers)
-                    const Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  else if (_participants.isEmpty && !isPastEvent)
-                    const Text(
-                      'No participants yet. Be the first to join!',
-                      // style: AppTextStyles.bodyMedium,
-                    )
-                  else
-                    _buildParticipantsList(isOrganizer),
-
-                  // Show registration/leave button if the user is not the organizer
-                  if (!isPastEvent && !isOrganizer && _event!.isOpen) ...[
-                    const SizedBox(height: 24),
-                    if (!isRegistered) ...[
-                      CustomButton(
-                        text: 'Register for Event',
-                        onPressed: _registerForEvent,
-                        isLoading: _isRegistering,
-                      ),
-                    ] else if (!isAccepted) ...[
-                      Column(
-                        children: [
-                          Card(
-                            // color: AppColors.cardBackground,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
+          // Content section
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 32, 20, 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Event title and status
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _event!.location,
+                                style: AppTextStyles.heading2.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
                                 children: [
                                   const Icon(
-                                    Icons.access_time,
+                                    Icons.location_on,
+                                    size: 16,
                                     color: AppColors.textSecondary,
-                                    size: 32,
                                   ),
-                                  const SizedBox(height: 8),
-                                  const Text(
-                                    'Your registration is pending approval',
-                                    // style: AppTextStyles.bodyMedium,
-                                    textAlign: TextAlign.center,
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      _event!.location,
+                                      style: AppTextStyles.caption.copyWith(
+                                        color: AppColors.textSecondary,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
                                 ],
                               ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isPastEvent
+                                ? AppColors.textDisabled.withOpacity(0.1)
+                                : _event!.isOpen
+                                ? AppColors.success.withOpacity(0.1)
+                                : AppColors.error.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            isPastEvent
+                                ? 'Completed'
+                                : _event!.isOpen
+                                ? 'Open'
+                                : 'Closed',
+                            style: AppTextStyles.caption.copyWith(
+                              color: isPastEvent
+                                  ? AppColors.textDisabled
+                                  : _event!.isOpen
+                                  ? AppColors.success
+                                  : AppColors.error,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          CustomButton(
-                            text: 'Leave Event',
-                            onPressed: _leaveEvent,
-                            isLoading: _isLeaving,
-                            // color: AppColors.error,
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Info cards
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoCard(
+                            icon: Icons.people_outline,
+                            iconColor: AppColors.secondary,
+                            title: 'Players',
+                            value: '${_event!.acceptedPlayers.length}/${_event!.maxPlayers}',
                           ),
-                        ],
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _buildInfoCard(
+                            icon: Icons.attach_money,
+                            iconColor: AppColors.sportGreen,
+                            title: 'Price',
+                            value: '${_event!.pricePerPerson.toStringAsFixed(2)} MKD',
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Directions button
+                    CustomButton(
+                      text: 'Get Directions',
+                      icon: Icons.directions,
+                      onPressed: _openDirections,
+                      backgroundColor: AppColors.secondary,
+                    ),
+                    // Sport and Organizer info
+                    const SizedBox(height: 24),
+
+                    Row(
+                      children: [
+                        // Sport info card
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: sportColor,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    _getSportIcon(_event!.sport),
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Sport',
+                                        style: AppTextStyles.caption.copyWith(
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        _event!.sport,
+                                        style: AppTextStyles.bodyBold,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(width: 16),
+
+                        // Organizer info card
+                        Expanded(
+                          child: FutureBuilder<User?>(
+                            future: Provider.of<AuthProvider>(context, listen: false)
+                                .getUserById(_event!.organizerId),
+                            builder: (context, snapshot) {
+                              final organizer = snapshot.data;
+                              return GestureDetector(  // Add this GestureDetector
+                                onTap: () {
+                                  if (organizer != null) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => UserScreen(userId: organizer.id),
+                                      ),
+                                    );
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.05),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primary.withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: const Icon(
+                                          Icons.person,
+                                          color: AppColors.primary,
+                                          size: 16,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Organizer',
+                                              style: AppTextStyles.caption.copyWith(
+                                                color: AppColors.textSecondary,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Row(  // Add a row with text and icon to indicate it's tappable
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                    organizer?.name ?? 'Loading...',
+                                                    style: AppTextStyles.bodyBold,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                                Icon(
+                                                  Icons.arrow_forward_ios,
+                                                  size: 12,
+                                                  color: AppColors.textSecondary,
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+
+                      ],
+                    ),
+
+                    // Description section
+                    if (_event!.description.isNotEmpty) ...[
+                      const SizedBox(height: 32),
+                      Text(
+                        'Description',
+                        style: AppTextStyles.subheading,
                       ),
-                    ] else ...[
-                      Column(
-                        children: [
-                          Card(
-                            color: AppColors.success.withOpacity(0.1),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                children: [
-                                  const Icon(
-                                    Icons.check_circle,
-                                    color: AppColors.success,
-                                    size: 32,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  const Text(
-                                    'You\'re all set! You are registered for this event.',
-                                    // style: AppTextStyles.bodyMediumBold,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          CustomButton(
-                            text: 'Leave Event',
-                            onPressed: _leaveEvent,
-                            isLoading: _isLeaving,
-                            // color: AppColors.error,
-                          ),
-                        ],
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          _event!.description,
+                          style: AppTextStyles.body,
+                        ),
                       ),
                     ],
-                  ],
 
-                  const SizedBox(height: 32),
-                ],
+                    // Participants section
+                    const SizedBox(height: 32),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Participants',
+                          style: AppTextStyles.subheading,
+                        ),
+                        Text(
+                          '${_event!.acceptedPlayers.length}/${_event!.maxPlayers}',
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    if (_loadingUsers)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(24.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    else if (_participants.isEmpty)
+                      _buildEmptyParticipants()
+                    else
+                      _buildParticipantsList(isOrganizer),
+
+                    // Registration/Leave section
+                    if (!isPastEvent && !isOrganizer && _event!.isOpen) ...[
+                      const SizedBox(height: 32),
+                      if (!isRegistered)
+                        CustomButton(
+                          text: 'Register for Event',
+                          icon: Icons.how_to_reg,
+                          onPressed: _registerForEvent,
+                          isLoading: _isRegistering,
+                        )
+                      else if (!isAccepted)
+                        _buildPendingRegistrationCard()
+                      else
+                        _buildAcceptedRegistrationCard(),
+                    ],
+                  ],
+                ),
               ),
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: isRegistered && !isPastEvent && !isOrganizer ?
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, -5),
             ),
           ],
         ),
+        child: CustomButton(
+          text: 'Leave Event',
+          icon: Icons.exit_to_app,
+          onPressed: _leaveEvent,
+          isLoading: _isLeaving,
+          backgroundColor: AppColors.error,
+        ),
+      ) : null,
+    );
+  }
+
+  Widget _buildInfoCard({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String value,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: iconColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  icon,
+                  color: iconColor,
+                  size: 16,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: AppTextStyles.bodyBold,
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildEmptyParticipants() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.divider,
+          width: 1,
+        ),
+      ),
+      child: Column(
         children: [
-          SizedBox(
-            width: 120,
-            child: Text(
-              '$label:',
-              // style: AppTextStyles.bodyMediumBold,
-            ),
+          Icon(
+            Icons.people_outline,
+            size: 48,
+            color: AppColors.textDisabled,
           ),
-          Expanded(
-            child: Text(
-              value,
-              // style: AppTextStyles.bodyMedium,
+          const SizedBox(height: 16),
+          Text(
+            'No participants yet',
+            style: AppTextStyles.subheading,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Be the first to join this event!',
+            style: AppTextStyles.body.copyWith(
+              color: AppColors.textSecondary,
             ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -648,45 +1275,107 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     return Column(
       children: [
         if (isEventFull && isOrganizer && _event!.registeredPlayers.length > _event!.acceptedPlayers.length)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12.0),
-            child: Card(
+          Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
               color: AppColors.warning.withOpacity(0.1),
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  children: const [
-                    Icon(Icons.info, color: AppColors.warning),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        'Event is full. You can still reject accepted players to make room for others.',
-                      ),
-                    ),
-                  ],
-                ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.warning.withOpacity(0.3),
+                width: 1,
               ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  color: AppColors.warning,
+                  size: 20,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Event is full. You can still reject accepted players to make room for others.',
+                    style: AppTextStyles.body.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
 
         for (var participant in _participants)
-          Card(
-            margin: const EdgeInsets.symmetric(vertical: 4.0),
-            child: ListTile(
-              leading: CircleAvatar(
-                child: Text(participant.name.substring(0, 1).toUpperCase()),
+          Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: InkWell(  // Add this InkWell
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => UserScreen(userId: participant.id),
+                  ),
+                );
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                leading: CircleAvatar(
+                  backgroundColor: _getAvatarColor(participant.name),
+                  child: Text(
+                    _getInitials(participant.name),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                title: Row(  // Modified to show an indicator
+                  children: [
+                    Expanded(
+                      child: Text(
+                        participant.name,
+                        style: AppTextStyles.bodyBold,
+                      ),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ],
+                ),
+                subtitle: Text(
+                  participant.sportsLevels.containsKey(_event!.sport)
+                      ? '${_event!.sport}: ${participant.sportsLevels[_event!.sport]}'
+                      : 'Skill level not specified',
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                trailing: isOrganizer
+                    ? _buildPlayerActionButtons(participant, isEventFull)
+                    : _event!.acceptedPlayers.contains(participant.id)
+                    ? Container(
+                  // Same as before
+                )
+                    : Container(
+                  // Same as before
+                ),
               ),
-              title: Text(participant.name),
-              subtitle: Text(
-                participant.sportsLevels.containsKey(_event!.sport)
-                    ? '${_event!.sport}: ${participant.sportsLevels[_event!.sport]}'
-                    : 'Skill level not specified',
-              ),
-              trailing: isOrganizer
-                  ? _buildPlayerActionButtons(participant, isEventFull)
-                  : _event!.acceptedPlayers.contains(participant.id)
-                  ? const Icon(Icons.check_circle, color: AppColors.success)
-                  : null,
             ),
           ),
       ],
@@ -696,29 +1385,215 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   Widget _buildPlayerActionButtons(User participant, bool isEventFull) {
     // If player is already accepted
     if (_event!.acceptedPlayers.contains(participant.id)) {
-      return Icon(Icons.check_circle, color: AppColors.success);
+      return Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 10,
+          vertical: 4,
+        ),
+        decoration: BoxDecoration(
+          color: AppColors.success.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.check_circle,
+              size: 14,
+              color: AppColors.success,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              'Accepted',
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.success,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      );
     }
 
     // If event is full, don't show accept button for pending registrations
     if (isEventFull) {
-      return Icon(Icons.do_not_disturb, color: AppColors.error);
+      return Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 10,
+          vertical: 4,
+        ),
+        decoration: BoxDecoration(
+          color: AppColors.error.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.block,
+              size: 14,
+              color: AppColors.error,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              'Event Full',
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.error,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      );
     }
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        IconButton(
-          icon: const Icon(Icons.check, color: AppColors.success),
-          onPressed: () => _acceptPlayer(participant.id),
-          tooltip: 'Accept player',
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.success.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.check, color: AppColors.success, size: 18),
+            onPressed: () => _acceptPlayer(participant.id),
+            tooltip: 'Accept player',
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(
+              minWidth: 36,
+              minHeight: 36,
+            ),
+          ),
         ),
-        IconButton(
-          icon: const Icon(Icons.close, color: AppColors.error),
-          onPressed: () => _rejectPlayer(participant.id),
-          tooltip: 'Reject player',
+        const SizedBox(width: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.error.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.close, color: AppColors.error, size: 18),
+            onPressed: () => _rejectPlayer(participant.id),
+            tooltip: 'Reject player',
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(
+              minWidth: 36,
+              minHeight: 36,
+            ),
+          ),
         ),
       ],
     );
+  }
+
+  Widget _buildPendingRegistrationCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.warning.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.warning.withOpacity(0.3),
+          width: 1.5,
+        ),
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.warning.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.access_time,
+              size: 32,
+              color: AppColors.warning,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Your Registration is Pending',
+            style: AppTextStyles.subheading.copyWith(
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'The organizer needs to approve your request to join this event.',
+            style: AppTextStyles.body.copyWith(
+              color: AppColors.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAcceptedRegistrationCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.success.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.success.withOpacity(0.3),
+          width: 1.5,
+        ),
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.success.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.check_circle,
+              size: 32,
+              color: AppColors.success,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'You\'re All Set!',
+            style: AppTextStyles.subheading.copyWith(
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'You are registered for this event. See you there!',
+            style: AppTextStyles.body.copyWith(
+              color: AppColors.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getInitials(String name) {
+    if (name.isEmpty) return '';
+
+    final nameParts = name.trim().split(' ');
+    if (nameParts.length > 1) {
+      return '${nameParts.first[0]}${nameParts.last[0]}'.toUpperCase();
+    } else {
+      return name.substring(0, 1).toUpperCase();
+    }
+  }
+
+  Color _getAvatarColor(String name) {
+    if (name.isEmpty) return AppColors.primary;
+
+    final hashCode = name.hashCode;
+    final colorIndex = hashCode.abs() % AppColors.avatarColors.length;
+    return AppColors.avatarColors[colorIndex];
   }
 
   void _showCancelEventDialog() {
@@ -727,12 +1602,15 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       builder: (context) => AlertDialog(
         title: const Text('Cancel Event'),
         content: const Text('Are you sure you want to cancel this event? All participants will be notified.'),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('No'),
+            child: const Text('No, Keep Event'),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () async {
               Navigator.pop(context);
               try {
@@ -741,9 +1619,24 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 await _loadEventData(); // Reload the data
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Event cancelled successfully'),
+                    SnackBar(
+                      content: Row(
+                        children: [
+                          const Icon(Icons.check_circle_outline, color: Colors.white),
+                          const SizedBox(width: 8),
+                          const Expanded(
+                            child: Text(
+                              'Event cancelled successfully',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
                       backgroundColor: AppColors.success,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   );
                 }
@@ -751,14 +1644,37 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Failed to cancel event: ${e.toString()}'),
+                      content: Row(
+                        children: [
+                          const Icon(Icons.error_outline, color: Colors.white),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Failed to cancel event: ${e.toString()}',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
                       backgroundColor: AppColors.error,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   );
                 }
               }
             },
-            child: const Text('Yes, cancel'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+            ),
+            child: const Text(
+              'Yes, Cancel',
+              style: TextStyle(
+                color: AppColors.primaryLight,
+              ),
+            ),
           ),
         ],
       ),

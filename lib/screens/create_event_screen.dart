@@ -146,6 +146,17 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       initialDate: _selectedDate,
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.primary,
+              onPrimary: Colors.white,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
     if (picked != null) {
       setState(() => _selectedDate = picked);
@@ -156,6 +167,17 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     final picked = await showTimePicker(
       context: context,
       initialTime: _selectedTime,
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.primary,
+              onPrimary: Colors.white,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
     if (picked != null) {
       setState(() => _selectedTime = picked);
@@ -165,9 +187,22 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   Future<void> _createEvent() async {
     if (!_formKey.currentState!.validate() || _selectedSport == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please fill all required fields'),
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text('Please fill all required fields',
+                    style: AppTextStyles.body.copyWith(color: Colors.white)),
+              ),
+            ],
+          ),
           backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
         ),
       );
       return;
@@ -175,9 +210,22 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
     if (_selectedLocation.latitude == 0 && _selectedLocation.longitude == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select a location on the map'),
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text('Please select a location on the map',
+                    style: AppTextStyles.body.copyWith(color: Colors.white)),
+              ),
+            ],
+          ),
           backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
         ),
       );
       return;
@@ -220,6 +268,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           SnackBar(
             content: Text('Failed to create event: ${e.toString()}'),
             backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
@@ -241,14 +290,54 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     super.dispose();
   }
 
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0, top: 8.0),
+      child: Text(
+        title,
+        style: AppTextStyles.subheading,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text(
-          'Host your next event!',
+        elevation: 0,
+        title: Text(
+          'Host Event',
           style: AppTextStyles.heading3,
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            onPressed: () {
+              // Show guide for event creation
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text('Hosting Guide', style: AppTextStyles.heading3),
+                  content: const Text(
+                    'Creating a great event is easy!\n\n'
+                        '1. Choose your sport and set the date & time\n'
+                        '2. Select a location on the map\n'
+                        '3. Set player limit and price\n'
+                        '4. Add a description to attract players\n\n'
+                        'That\'s it! Your event will be visible to all users.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Got it'),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -257,102 +346,289 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              DropdownButtonFormField<String>(
-                value: _selectedSport,
-                decoration: const InputDecoration(
-                  labelText: 'Sport',
-                  border: OutlineInputBorder(),
+              // Sport selection
+              _buildSectionTitle('What sport are you playing?'),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: AppColors.cardBackground,
                 ),
-                items: Sport.defaultSports.map((sport) {
-                  return DropdownMenuItem(
-                    value: sport.name,
-                    child: Text(sport.name),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() => _selectedSport = value);
-                },
-                validator: (value) =>
-                value == null ? 'Please select a sport' : null,
+                child: DropdownButtonFormField<String>(
+                  value: _selectedSport,
+                  decoration: InputDecoration(
+                    hintText: 'Select sport',
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: AppColors.cardBackground2,
+                  ),
+                  icon: const Icon(Icons.sports_basketball, color: AppColors.primary),
+                  style: AppTextStyles.body.copyWith(color: AppColors.textPrimary),
+                  dropdownColor: AppColors.cardBackground,
+                  borderRadius: BorderRadius.circular(12),
+                  items: Sport.defaultSports.map((sport) {
+                    return DropdownMenuItem(
+                      value: sport.name,
+                      child: Row(
+                        children: [
+                          Icon(
+                            _getSportIcon(sport.name),
+                            color: _getSportColor(sport.name),
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(sport.name),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() => _selectedSport = value);
+                  },
+                  validator: (value) =>
+                  value == null ? 'Please select a sport' : null,
+                ),
               ),
-              const SizedBox(height: 16),
+
+              const SizedBox(height: 24),
+
+              // Date and time section
+              _buildSectionTitle('When is your event?'),
               Row(
                 children: [
                   Expanded(
-                    child: ListTile(
-                      title: const Text('Date'),
-                      subtitle: Text(
-                        '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                    child: Card(
+                      elevation: 0,
+                      color: AppColors.cardBackground,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      onTap: _selectDate,
-                      trailing: const Icon(Icons.calendar_today),
+                      child: InkWell(
+                        onTap: _selectDate,
+                        borderRadius: BorderRadius.circular(12),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryLight,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Icon(
+                                      Icons.calendar_today_rounded,
+                                      color: AppColors.primary,
+                                      size: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Date',
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                                style: AppTextStyles.bodyBold,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
+                  const SizedBox(width: 12),
                   Expanded(
-                    child: ListTile(
-                      title: const Text('Time'),
-                      subtitle: Text(_selectedTime.format(context)),
-                      onTap: _selectTime,
-                      trailing: const Icon(Icons.access_time),
+                    child: Card(
+                      elevation: 0,
+                      color: AppColors.cardBackground,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: InkWell(
+                        onTap: _selectTime,
+                        borderRadius: BorderRadius.circular(12),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.accentLight,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Icon(
+                                      Icons.access_time_rounded,
+                                      color: AppColors.accent,
+                                      size: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Time',
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                _selectedTime.format(context),
+                                style: AppTextStyles.bodyBold,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              const Text(
-                'Location',
-                style: AppTextStyles.label,
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
+
+              const SizedBox(height: 24),
+
+              // Location section
+              _buildSectionTitle('Where is it happening?'),
+              CustomTextField(
+                label: '',
+                hint: 'Search for a location',
                 controller: _locationController,
-                decoration: const InputDecoration(
-                  hintText: 'Search location',
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(),
-                ),
-                onFieldSubmitted: _searchLocation,
+                prefixIcon: const Icon(Icons.search, color: AppColors.secondary),
+                onChanged: (value) {
+                  // If user stops typing for a bit, search location
+                  if (value.length > 3) {
+                    Future.delayed(const Duration(milliseconds: 500), () {
+                      if (_locationController.text == value) {
+                        _searchLocation(value);
+                      }
+                    });
+                  }
+                },
                 validator: (value) =>
                 value?.isEmpty ?? true ? 'Location is required' : null,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               Container(
-                height: 300,
+                height: 280,
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withOpacity(0.1),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: GoogleMap(
-                    initialCameraPosition: CameraPosition(
-                      target: _selectedLocation,
-                      zoom: 15,
-                    ),
-                    markers: _markers,
-                    onMapCreated: (controller) {
-                      _mapController = controller;
-                      setState(() {
-                        _mapInitialized = true;
-                      });
-                    },
-                    onTap: (position) {
-                      _updateMarker(position);
-                    },
-                    myLocationEnabled: true,
-                    myLocationButtonEnabled: true,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Stack(
+                    children: [
+                      GoogleMap(
+                        initialCameraPosition: CameraPosition(
+                          target: _selectedLocation,
+                          zoom: 15,
+                        ),
+                        markers: _markers,
+                        onMapCreated: (controller) {
+                          _mapController = controller;
+                          setState(() {
+                            _mapInitialized = true;
+                          });
+                        },
+                        onTap: (position) {
+                          _updateMarker(position);
+                        },
+                        myLocationEnabled: true,
+                        myLocationButtonEnabled: false,
+                        zoomControlsEnabled: false,
+                      ),
+                      Positioned(
+                        bottom: 16,
+                        right: 16,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: IconButton(
+                            icon: const Icon(Icons.my_location, color: AppColors.primary),
+                            onPressed: _getCurrentLocation,
+                            tooltip: 'My Location',
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 16,
+                        left: 16,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.touch_app, size: 16, color: AppColors.secondary),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Tap to set location',
+                                style: AppTextStyles.caption.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+
+              const SizedBox(height: 24),
+
+              // Event details section
+              _buildSectionTitle('Event details'),
               Row(
                 children: [
                   Expanded(
                     child: CustomTextField(
-                      label: 'Price per person',
-                      hint: '0.00',
+                      label: 'Price per person (MKD)',
+                      hint: '0',
                       controller: _priceController,
-                      keyboardType: TextInputType.number,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      prefixIcon: const Icon(Icons.attach_money, color: AppColors.accent),
                       validator: (value) {
                         if (value?.isEmpty ?? true) return 'Price is required';
                         if (double.tryParse(value!) == null) {
@@ -367,26 +643,37 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Max Players',
+                        Text(
+                          'Maximum Players',
                           style: AppTextStyles.label,
                         ),
-                        const SizedBox(height: 8),
-                        DropdownButtonFormField<int>(
-                          value: _maxPlayers,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
+                        const SizedBox(height: 28),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            color: AppColors.cardBackground2,
                           ),
-                          items: List.generate(13, (index) => index + 2)
-                              .map((count) {
-                            return DropdownMenuItem(
-                              value: count,
-                              child: Text(count.toString()),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            setState(() => _maxPlayers = value ?? 4);
-                          },
+                          child: DropdownButtonFormField<int>(
+                            value: _maxPlayers,
+                            decoration: InputDecoration(
+                              prefixIcon: const Icon(Icons.people, color: AppColors.secondary),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                            ),
+                            items: List.generate(19, (index) => index + 2)
+                                .map((count) {
+                              return DropdownMenuItem(
+                                value: count,
+                                child: Text('$count players'),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() => _maxPlayers = value ?? 4);
+                            },
+                          ),
                         ),
                       ],
                     ),
@@ -396,19 +683,94 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
               const SizedBox(height: 16),
               CustomTextField(
                 label: 'Description',
-                hint: 'Enter event description',
+                hint: 'Tell players about your event...',
                 controller: _descriptionController,
+                maxLines: 4,
               ),
               const SizedBox(height: 32),
               CustomButton(
                 text: 'Create Event',
+                icon: Icons.sports_handball,
                 onPressed: _createEvent,
                 isLoading: _isLoading,
               ),
+              const SizedBox(height: 16),
             ],
           ),
         ),
       ),
     );
+  }
+
+  IconData _getSportIcon(String sport) {
+    final String sportLower = sport.toLowerCase();
+
+    if (sportLower.contains('soccer') || sportLower.contains('football')) {
+      return Icons.sports_soccer;
+    } else if (sportLower.contains('basket')) {
+      return Icons.sports_basketball;
+    } else if (sportLower.contains('tennis')) {
+      return Icons.sports_tennis;
+    } else if (sportLower.contains('volley')) {
+      return Icons.sports_volleyball;
+    } else if (sportLower.contains('baseball')) {
+      return Icons.sports_baseball;
+    } else if (sportLower.contains('cricket')) {
+      return Icons.sports_cricket;
+    } else if (sportLower.contains('run') || sportLower.contains('marathon')) {
+      return Icons.directions_run;
+    } else if (sportLower.contains('golf')) {
+      return Icons.sports_golf;
+    } else if (sportLower.contains('swim')) {
+      return Icons.pool;
+    } else if (sportLower.contains('cycle') || sportLower.contains('bike')) {
+      return Icons.directions_bike;
+    } else if (sportLower.contains('ping pong') || sportLower.contains('table tennis')) {
+      return Icons.sports_tennis; // Using tennis icon as fallback for ping pong
+    } else if (sportLower.contains('rock') && sportLower.contains('climb')) {
+      return Icons.terrain; // Mountain icon for rock climbing
+    } else if (sportLower.contains('yoga')) {
+      return Icons.self_improvement; // Yoga pose icon
+    } else if (sportLower.contains('box') || sportLower.contains('boxing')) {
+      return Icons.sports_mma; // MMA/boxing icon
+    } else {
+      return Icons.sports;
+    }
+  }
+
+  Color _getSportColor(String sport) {
+    final String sportLower = sport.toLowerCase();
+
+    if (sportLower.contains('soccer') || sportLower.contains('football')) {
+      return AppColors.sportGreen;
+    } else if (sportLower.contains('basket')) {
+      return AppColors.sportOrange;
+    } else if (sportLower.contains('tennis')) {
+      return AppColors.accent;
+    } else if (sportLower.contains('volley')) {
+      return AppColors.sportPink;
+    } else if (sportLower.contains('baseball')) {
+      return AppColors.sportPurple;
+    } else if (sportLower.contains('cricket')) {
+      return AppColors.sportCyan;
+    } else if (sportLower.contains('run') || sportLower.contains('marathon')) {
+      return AppColors.textSecondary;
+    } else if (sportLower.contains('golf')) {
+      return Colors.brown;
+    } else if (sportLower.contains('swim')) {
+      return AppColors.primary;
+    } else if (sportLower.contains('cycle') || sportLower.contains('bike')) {
+      return AppColors.sportRed;
+    } else if (sportLower.contains('ping pong') || sportLower.contains('table tennis')) {
+      return Colors.teal; // Teal for ping pong
+    } else if (sportLower.contains('rock') && sportLower.contains('climb')) {
+      return Colors.brown[700] ?? Colors.brown; // Dark brown for rock climbing
+    } else if (sportLower.contains('yoga')) {
+      return Colors.purple[300] ?? Colors.purple; // Light purple for yoga
+    } else if (sportLower.contains('box') || sportLower.contains('boxing')) {
+      return Colors.red[900] ?? Colors.red; // Dark red for boxing
+    } else {
+      return AppColors.primary;
+    }
   }
 }
