@@ -7,6 +7,7 @@ import '../models/sport_event.dart';
 import '../models/sport.dart';
 import '../providers/events_provider.dart';
 import '../providers/auth_provider.dart';
+import '../utils/sport_formatter.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
 import '../utils/constants.dart';
@@ -30,7 +31,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   int _maxPlayers = 4;
   bool _isLoading = false;
 
-  // Google Maps related variables
   late GoogleMapController _mapController;
   LatLng _selectedLocation = const LatLng(0, 0);
   Set<Marker> _markers = {};
@@ -42,18 +42,15 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     _getCurrentLocation();
   }
 
-  // Get user's current location
   Future<void> _getCurrentLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
 
-    // Check if location services are enabled
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       return;
     }
 
-    // Check location permissions
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -66,7 +63,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       return;
     }
 
-    // Get the current position
     final position = await Geolocator.getCurrentPosition();
     setState(() {
       _selectedLocation = LatLng(position.latitude, position.longitude);
@@ -74,7 +70,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     });
   }
 
-  // Update the marker on the map
   void _updateMarker(LatLng position) {
     setState(() {
       _markers = {
@@ -91,11 +86,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       _mapController.animateCamera(CameraUpdate.newLatLng(position));
     }
 
-    // Reverse geocode to get address
     _getAddressFromLatLng(position);
   }
 
-  // Get address from coordinates
   Future<void> _getAddressFromLatLng(LatLng position) async {
     try {
       List<Placemark> placemarks = await placemarkFromCoordinates(
@@ -116,7 +109,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     }
   }
 
-  // Search for a location
   Future<void> _searchLocation(String query) async {
     if (query.isEmpty) return;
 
@@ -314,7 +306,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           IconButton(
             icon: const Icon(Icons.info_outline),
             onPressed: () {
-              // Show guide for event creation
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
@@ -346,7 +337,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Sport selection
               _buildSectionTitle('What sport are you playing?'),
               Container(
                 decoration: BoxDecoration(
@@ -375,8 +365,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                       child: Row(
                         children: [
                           Icon(
-                            _getSportIcon(sport.name),
-                            color: _getSportColor(sport.name),
+                            SportFormatter.getSportIcon(sport.name),
+                            color: SportFormatter.getSportColor(sport.name),
                             size: 20,
                           ),
                           const SizedBox(width: 8),
@@ -395,7 +385,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
               const SizedBox(height: 24),
 
-              // Date and time section
               _buildSectionTitle('When is your event?'),
               Row(
                 children: [
@@ -503,7 +492,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
               const SizedBox(height: 24),
 
-              // Location section
               _buildSectionTitle('Where is it happening?'),
               CustomTextField(
                 label: '',
@@ -511,7 +499,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 controller: _locationController,
                 prefixIcon: const Icon(Icons.search, color: AppColors.secondary),
                 onChanged: (value) {
-                  // If user stops typing for a bit, search location
                   if (value.length > 3) {
                     Future.delayed(const Duration(milliseconds: 500), () {
                       if (_locationController.text == value) {
@@ -618,7 +605,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
               const SizedBox(height: 24),
 
-              // Event details section
               _buildSectionTitle('Event details'),
               Row(
                 children: [
@@ -702,75 +688,4 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     );
   }
 
-  IconData _getSportIcon(String sport) {
-    final String sportLower = sport.toLowerCase();
-
-    if (sportLower.contains('soccer') || sportLower.contains('football')) {
-      return Icons.sports_soccer;
-    } else if (sportLower.contains('basket')) {
-      return Icons.sports_basketball;
-    } else if (sportLower.contains('tennis')) {
-      return Icons.sports_tennis;
-    } else if (sportLower.contains('volley')) {
-      return Icons.sports_volleyball;
-    } else if (sportLower.contains('baseball')) {
-      return Icons.sports_baseball;
-    } else if (sportLower.contains('cricket')) {
-      return Icons.sports_cricket;
-    } else if (sportLower.contains('run') || sportLower.contains('marathon')) {
-      return Icons.directions_run;
-    } else if (sportLower.contains('golf')) {
-      return Icons.sports_golf;
-    } else if (sportLower.contains('swim')) {
-      return Icons.pool;
-    } else if (sportLower.contains('cycle') || sportLower.contains('bike')) {
-      return Icons.directions_bike;
-    } else if (sportLower.contains('ping pong') || sportLower.contains('table tennis')) {
-      return Icons.sports_tennis; // Using tennis icon as fallback for ping pong
-    } else if (sportLower.contains('rock') && sportLower.contains('climb')) {
-      return Icons.terrain; // Mountain icon for rock climbing
-    } else if (sportLower.contains('yoga')) {
-      return Icons.self_improvement; // Yoga pose icon
-    } else if (sportLower.contains('box') || sportLower.contains('boxing')) {
-      return Icons.sports_mma; // MMA/boxing icon
-    } else {
-      return Icons.sports;
-    }
-  }
-
-  Color _getSportColor(String sport) {
-    final String sportLower = sport.toLowerCase();
-
-    if (sportLower.contains('soccer') || sportLower.contains('football')) {
-      return AppColors.sportGreen;
-    } else if (sportLower.contains('basket')) {
-      return AppColors.sportOrange;
-    } else if (sportLower.contains('tennis')) {
-      return AppColors.accent;
-    } else if (sportLower.contains('volley')) {
-      return AppColors.sportPink;
-    } else if (sportLower.contains('baseball')) {
-      return AppColors.sportPurple;
-    } else if (sportLower.contains('cricket')) {
-      return AppColors.sportCyan;
-    } else if (sportLower.contains('run') || sportLower.contains('marathon')) {
-      return AppColors.textSecondary;
-    } else if (sportLower.contains('golf')) {
-      return Colors.brown;
-    } else if (sportLower.contains('swim')) {
-      return AppColors.primary;
-    } else if (sportLower.contains('cycle') || sportLower.contains('bike')) {
-      return AppColors.sportRed;
-    } else if (sportLower.contains('ping pong') || sportLower.contains('table tennis')) {
-      return Colors.teal; // Teal for ping pong
-    } else if (sportLower.contains('rock') && sportLower.contains('climb')) {
-      return Colors.brown[700] ?? Colors.brown; // Dark brown for rock climbing
-    } else if (sportLower.contains('yoga')) {
-      return Colors.purple[300] ?? Colors.purple; // Light purple for yoga
-    } else if (sportLower.contains('box') || sportLower.contains('boxing')) {
-      return Colors.red[900] ?? Colors.red; // Dark red for boxing
-    } else {
-      return AppColors.primary;
-    }
-  }
 }

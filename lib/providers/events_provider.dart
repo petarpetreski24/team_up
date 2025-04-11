@@ -44,11 +44,9 @@ class EventsProvider with ChangeNotifier {
 
   Future<void> createEvent(SportEvent event) async {
     try {
-      // Make sure organizer is included in players lists
       List<String> registeredPlayers = List<String>.from(event.registeredPlayers);
       List<String> acceptedPlayers = List<String>.from(event.acceptedPlayers);
 
-      // Add organizer to lists if not already there
       if (!registeredPlayers.contains(event.organizerId)) {
         registeredPlayers.add(event.organizerId);
       }
@@ -95,7 +93,6 @@ class EventsProvider with ChangeNotifier {
       final event = SportEvent.fromFirestore(eventDoc);
 
       if (!event.registeredPlayers.contains(userId)) {
-        // Update the event document
         await _firestore.collection('events').doc(eventId).update({
           'registeredPlayers': FieldValue.arrayUnion([userId])
         });

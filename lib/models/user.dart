@@ -7,7 +7,7 @@ class User {
   final Map<String, String> sportsLevels;
   final List<String> hostedEvents;
   final List<String> participatedEvents;
-  final String? profileImageUrl; // Added for profile image
+  final String? profileImageUrl;
 
   User({
     required this.id,
@@ -16,7 +16,7 @@ class User {
     this.sportsLevels = const {},
     this.hostedEvents = const [],
     this.participatedEvents = const [],
-    this.profileImageUrl, // New optional parameter
+    this.profileImageUrl,
   });
 
   User copyWith({
@@ -24,7 +24,7 @@ class User {
     Map<String, String>? sportsLevels,
     List<String>? hostedEvents,
     List<String>? participatedEvents,
-    String? profileImageUrl, // Added parameter
+    String? profileImageUrl,
   }) {
     return User(
       id: id,
@@ -33,7 +33,7 @@ class User {
       sportsLevels: sportsLevels ?? this.sportsLevels,
       hostedEvents: hostedEvents ?? this.hostedEvents,
       participatedEvents: participatedEvents ?? this.participatedEvents,
-      profileImageUrl: profileImageUrl ?? this.profileImageUrl, // Include in copy
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
     );
   }
 
@@ -44,7 +44,7 @@ class User {
       'sportsLevels': sportsLevels,
       'hostedEvents': hostedEvents,
       'participatedEvents': participatedEvents,
-      'profileImageUrl': profileImageUrl, // Include in map
+      'profileImageUrl': profileImageUrl,
     };
   }
 
@@ -56,7 +56,7 @@ class User {
       sportsLevels: Map<String, String>.from(map['sportsLevels'] ?? {}),
       hostedEvents: List<String>.from(map['hostedEvents'] ?? []),
       participatedEvents: List<String>.from(map['participatedEvents'] ?? []),
-      profileImageUrl: map['profileImageUrl'], // Extract from map
+      profileImageUrl: map['profileImageUrl'],
     );
   }
 

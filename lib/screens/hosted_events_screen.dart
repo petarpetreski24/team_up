@@ -68,7 +68,6 @@ class _HostedEventsScreenState extends State<HostedEventsScreen> with TickerProv
                         ),
                       ),
                     ),
-                    // Decorative elements
                     Positioned(
                       top: -20,
                       right: -20,
@@ -93,7 +92,6 @@ class _HostedEventsScreenState extends State<HostedEventsScreen> with TickerProv
                         ),
                       ),
                     ),
-                    // Content
                     Positioned(
                       left: 20,
                       top: 70,
@@ -160,7 +158,7 @@ class _HostedEventsScreenState extends State<HostedEventsScreen> with TickerProv
             final pastEvents = hostedEvents
                 .where((event) => event.dateTime.isBefore(now))
                 .toList()
-              ..sort((a, b) => b.dateTime.compareTo(a.dateTime)); // Reverse chronological for past events
+              ..sort((a, b) => b.dateTime.compareTo(a.dateTime));
 
             return Container(
               color: AppColors.background,
@@ -195,7 +193,7 @@ class _EventsList extends StatelessWidget {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 80), // Added bottom padding for FAB
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
       itemCount: events.length,
       itemBuilder: (context, index) {
         final event = events[index];

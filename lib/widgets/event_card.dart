@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:team_up/utils/sport_formatter.dart';
 import '../models/sport_event.dart';
 import '../utils/constants.dart';
 import '../utils/date_formatter.dart';
@@ -52,11 +53,10 @@ class EventCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Sport Type Banner
                 Container(
                   height: 68,
                   decoration: BoxDecoration(
-                    color: _getSportColor(event.sport).withOpacity(0.15),
+                    color: SportFormatter.getSportColor(event.sport).withOpacity(0.15),
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(16),
                     ),
@@ -68,12 +68,12 @@ class EventCard extends StatelessWidget {
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: _getSportColor(event.sport),
+                          color: SportFormatter.getSportColor(event.sport),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Center(
                           child: Icon(
-                            _getSportIcon(event.sport),
+                            SportFormatter.getSportIcon(event.sport),
                             color: Colors.white,
                             size: 20,
                           ),
@@ -120,13 +120,11 @@ class EventCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                // Content
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Date and price
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -176,7 +174,6 @@ class EventCard extends StatelessWidget {
 
                       const SizedBox(height: 12),
 
-                      // Location
                       Row(
                         children: [
                           Container(
@@ -206,7 +203,6 @@ class EventCard extends StatelessWidget {
 
                       const SizedBox(height: 12),
 
-                      // Players info and spots left
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -334,77 +330,5 @@ class EventCard extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  IconData _getSportIcon(String sport) {
-    final String sportLower = sport.toLowerCase();
-
-    if (sportLower.contains('soccer') || sportLower.contains('football')) {
-      return Icons.sports_soccer;
-    } else if (sportLower.contains('basket')) {
-      return Icons.sports_basketball;
-    } else if (sportLower.contains('tennis')) {
-      return Icons.sports_tennis;
-    } else if (sportLower.contains('volley')) {
-      return Icons.sports_volleyball;
-    } else if (sportLower.contains('baseball')) {
-      return Icons.sports_baseball;
-    } else if (sportLower.contains('cricket')) {
-      return Icons.sports_cricket;
-    } else if (sportLower.contains('run') || sportLower.contains('marathon')) {
-      return Icons.directions_run;
-    } else if (sportLower.contains('golf')) {
-      return Icons.sports_golf;
-    } else if (sportLower.contains('swim')) {
-      return Icons.pool;
-    } else if (sportLower.contains('cycle') || sportLower.contains('bike')) {
-      return Icons.directions_bike;
-    } else if (sportLower.contains('ping pong') || sportLower.contains('table tennis')) {
-      return Icons.sports_tennis; // Using tennis icon as fallback for ping pong
-    } else if (sportLower.contains('rock') && sportLower.contains('climb')) {
-      return Icons.terrain; // Mountain icon for rock climbing
-    } else if (sportLower.contains('yoga')) {
-      return Icons.self_improvement; // Yoga pose icon
-    } else if (sportLower.contains('box') || sportLower.contains('boxing')) {
-      return Icons.sports_mma; // MMA/boxing icon
-    } else {
-      return Icons.sports;
-    }
-  }
-
-  Color _getSportColor(String sport) {
-    final String sportLower = sport.toLowerCase();
-
-    if (sportLower.contains('soccer') || sportLower.contains('football')) {
-      return AppColors.sportGreen;
-    } else if (sportLower.contains('basket')) {
-      return AppColors.sportOrange;
-    } else if (sportLower.contains('tennis')) {
-      return AppColors.accent;
-    } else if (sportLower.contains('volley')) {
-      return AppColors.sportPink;
-    } else if (sportLower.contains('baseball')) {
-      return AppColors.sportPurple;
-    } else if (sportLower.contains('cricket')) {
-      return AppColors.sportCyan;
-    } else if (sportLower.contains('run') || sportLower.contains('marathon')) {
-      return AppColors.textSecondary;
-    } else if (sportLower.contains('golf')) {
-      return Colors.brown;
-    } else if (sportLower.contains('swim')) {
-      return AppColors.primary;
-    } else if (sportLower.contains('cycle') || sportLower.contains('bike')) {
-      return AppColors.sportRed;
-    } else if (sportLower.contains('ping pong') || sportLower.contains('table tennis')) {
-      return Colors.teal; // Teal for ping pong
-    } else if (sportLower.contains('rock') && sportLower.contains('climb')) {
-      return Colors.brown[700] ?? Colors.brown; // Dark brown for rock climbing
-    } else if (sportLower.contains('yoga')) {
-      return Colors.purple[300] ?? Colors.purple; // Light purple for yoga
-    } else if (sportLower.contains('box') || sportLower.contains('boxing')) {
-      return Colors.red[900] ?? Colors.red; // Dark red for boxing
-    } else {
-      return AppColors.primary;
-    }
   }
 }

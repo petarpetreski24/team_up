@@ -114,7 +114,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   const SizedBox(height: 16),
 
-                  // App logo and name
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -150,7 +149,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 48),
 
-                  // Welcome text
                   Text(
                     'Welcome back!',
                     style: AppTextStyles.heading2.copyWith(
@@ -168,7 +166,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 40),
 
-                  // Login form
                   Form(
                     key: _formKey,
                     child: Column(
@@ -209,7 +206,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         const SizedBox(height: 24),
 
-                        // Login button
                         CustomButton(
                           text: 'Log In',
                           icon: Icons.login,
@@ -222,7 +218,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 40),
 
-                  // Register link
                   Center(
                     child: RichText(
                       text: TextSpan(
@@ -248,52 +243,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ],
               ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSocialLoginButton({
-    required String icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return Expanded(
-      child: Container(
-        height: 48,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: AppColors.divider,
-            width: 1,
-          ),
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: onTap,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Note: For simplicity we're using Icon instead of Image here
-                // In a real app, replace with: Image.asset(icon, height: 20)
-                Icon(
-                  label == 'Google' ? Icons.g_mobiledata : Icons.facebook,
-                  color: label == 'Google' ? Colors.red : Colors.blue,
-                  size: 24,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  label,
-                  style: AppTextStyles.bodyBold.copyWith(
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ],
             ),
           ),
         ),

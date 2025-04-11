@@ -2,17 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
-  // Primary brand colors
-  static const primary = Color(0xFF3A7CE0);  // Vibrant blue
+  static const primary = Color(0xFF3A7CE0);
   static const primaryLight = Color(0xFFE4EFFF);
   static const primaryDark = Color(0xFF1A5BC3);
 
-  // Accent colors
-  static const accent = Color(0xFF00C48C);   // Mint green
+  static const accent = Color(0xFF00C48C);
   static const accentLight = Color(0xFFE6F9F2);
-  static const secondary = Color(0xFF5E6DFF); // Purple-ish
+  static const secondary = Color(0xFF5E6DFF);
 
-  // Extended palette colors for different sports
   static const sportRed = Color(0xFFFF4D4D);
   static const sportOrange = Color(0xFFFF9500);
   static const sportGreen = Color(0xFF22C55E);
@@ -20,31 +17,27 @@ class AppColors {
   static const sportPink = Color(0xFFFF66B8);
   static const sportCyan = Color(0xFF26C6DA);
 
-  // Background colors
   static const background = Color(0xFFF8FAFC);
   static const surface = Colors.white;
   static const cardBackground = Colors.white;
   static const cardBackground2 = Color(0xFFF1F5FB);
   static const divider = Color(0xFFEAEFF5);
 
-  // Status colors
   static const error = Color(0xFFE53935);
   static const success = Color(0xFF00C48C);
   static const warning = Color(0xFFFFC107);
   static const info = Color(0xFF2196F3);
 
-  // Text colors
   static const textPrimary = Color(0xFF1E293B);
   static const textSecondary = Color(0xFF64748B);
   static const textDisabled = Color(0xFFA9B2C1);
 
-  // Avatar colors for groups of people
   static const List<Color> avatarColors = [
-    Color(0xFF3A7CE0),  // Blue
-    Color(0xFFFF9500),  // Orange
-    Color(0xFF00C48C),  // Green
-    Color(0xFFFF4D4D),  // Red
-    Color(0xFF9B51E0),  // Purple
+    Color(0xFF3A7CE0),
+    Color(0xFFFF9500),
+    Color(0xFF00C48C),
+    Color(0xFFFF4D4D),
+    Color(0xFF9B51E0),
   ];
 }
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:team_up/screens/user_screen.dart';
+import 'package:team_up/utils/avatar_formatter.dart';
+import 'package:team_up/utils/sport_formatter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
@@ -49,11 +51,10 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
       SportEvent? foundEvent = eventsProvider.events.firstWhere(
             (e) => e.id == widget.eventId,
-        orElse: () => null as SportEvent, // This will throw if not found, which we handle in the catch
+        orElse: () => null as SportEvent,
       );
 
       if (foundEvent == null) {
-        // Assuming your EventsProvider has a method to fetch a single event
         foundEvent = await eventsProvider.getEventById(widget.eventId);
 
         if (foundEvent == null) {
@@ -204,10 +205,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     String googleMapsUrl;
 
     if (_currentUserLocation != null) {
-      // If we have the user's current location, use it as the starting point
       googleMapsUrl = 'https://www.google.com/maps/dir/?api=1&origin=${_currentUserLocation!.latitude},${_currentUserLocation!.longitude}&destination=${_event!.latitude},${_event!.longitude}&travelmode=driving';
     } else {
-      // Otherwise just show the destination
       googleMapsUrl = 'https://www.google.com/maps/dir/?api=1&destination=${_event!.latitude},${_event!.longitude}&travelmode=driving';
     }
 
@@ -283,7 +282,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
     try {
       await eventsProvider.registerForEvent(_event!.id, authProvider.currentUser!.id);
-      // Refresh the event data to get updated player lists
       await _loadEventData();
 
       if (mounted) {
@@ -350,7 +348,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       return;
     }
 
-    // Show confirmation dialog
     bool confirm = await _showLeaveConfirmationDialog();
     if (!confirm) return;
 
@@ -358,7 +355,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
     try {
       await eventsProvider.leaveEvent(_event!.id, authProvider.currentUser!.id);
-      // Refresh the event data
       await _loadEventData();
 
       if (mounted) {
@@ -449,7 +445,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
     try {
       await eventsProvider.acceptPlayer(_event!.id, playerId);
-      // Refresh the event data
       await _loadEventData();
 
       if (mounted) {
@@ -509,7 +504,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
     try {
       await eventsProvider.rejectPlayer(_event!.id, playerId);
-      // Refresh the event data
       await _loadEventData();
 
       if (mounted) {
@@ -562,78 +556,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     }
   }
 
-  IconData _getSportIcon(String sport) {
-    final String sportLower = sport.toLowerCase();
-
-    if (sportLower.contains('soccer') || sportLower.contains('football')) {
-      return Icons.sports_soccer;
-    } else if (sportLower.contains('basket')) {
-      return Icons.sports_basketball;
-    } else if (sportLower.contains('tennis')) {
-      return Icons.sports_tennis;
-    } else if (sportLower.contains('volley')) {
-      return Icons.sports_volleyball;
-    } else if (sportLower.contains('baseball')) {
-      return Icons.sports_baseball;
-    } else if (sportLower.contains('cricket')) {
-      return Icons.sports_cricket;
-    } else if (sportLower.contains('run') || sportLower.contains('marathon')) {
-      return Icons.directions_run;
-    } else if (sportLower.contains('golf')) {
-      return Icons.sports_golf;
-    } else if (sportLower.contains('swim')) {
-      return Icons.pool;
-    } else if (sportLower.contains('cycle') || sportLower.contains('bike')) {
-      return Icons.directions_bike;
-    } else if (sportLower.contains('ping pong') || sportLower.contains('table tennis')) {
-      return Icons.sports_tennis; // Using tennis icon as fallback for ping pong
-    } else if (sportLower.contains('rock') && sportLower.contains('climb')) {
-      return Icons.terrain; // Mountain icon for rock climbing
-    } else if (sportLower.contains('yoga')) {
-      return Icons.self_improvement; // Yoga pose icon
-    } else if (sportLower.contains('box') || sportLower.contains('boxing')) {
-      return Icons.sports_mma; // MMA/boxing icon
-    } else {
-      return Icons.sports;
-    }
-  }
-
-  Color _getSportColor(String sport) {
-    final String sportLower = sport.toLowerCase();
-
-    if (sportLower.contains('soccer') || sportLower.contains('football')) {
-      return AppColors.sportGreen;
-    } else if (sportLower.contains('basket')) {
-      return AppColors.sportOrange;
-    } else if (sportLower.contains('tennis')) {
-      return AppColors.accent;
-    } else if (sportLower.contains('volley')) {
-      return AppColors.sportPink;
-    } else if (sportLower.contains('baseball')) {
-      return AppColors.sportPurple;
-    } else if (sportLower.contains('cricket')) {
-      return AppColors.sportCyan;
-    } else if (sportLower.contains('run') || sportLower.contains('marathon')) {
-      return AppColors.textSecondary;
-    } else if (sportLower.contains('golf')) {
-      return Colors.brown;
-    } else if (sportLower.contains('swim')) {
-      return AppColors.primary;
-    } else if (sportLower.contains('cycle') || sportLower.contains('bike')) {
-      return AppColors.sportRed;
-    } else if (sportLower.contains('ping pong') || sportLower.contains('table tennis')) {
-      return Colors.teal; // Teal for ping pong
-    } else if (sportLower.contains('rock') && sportLower.contains('climb')) {
-      return Colors.brown[700] ?? Colors.brown; // Dark brown for rock climbing
-    } else if (sportLower.contains('yoga')) {
-      return Colors.purple[300] ?? Colors.purple; // Light purple for yoga
-    } else if (sportLower.contains('box') || sportLower.contains('boxing')) {
-      return Colors.red[900] ?? Colors.red; // Dark red for boxing
-    } else {
-      return AppColors.primary;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -667,7 +589,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               const SizedBox(height: 16),
               const Text(
                 'Event not found or has been deleted.',
-                // style: AppTextStyles.subheading,
               ),
               const SizedBox(height: 24),
               ElevatedButton.icon(
@@ -692,7 +613,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     final isAccepted = _event!.acceptedPlayers.contains(currentUser?.id);
     final isPastEvent = _event!.dateTime.isBefore(DateTime.now());
     final canRegister = !isPastEvent && _event!.isOpen && !isOrganizer && !isRegistered;
-    final sportColor = _getSportColor(_event!.sport);
+    final sportColor = SportFormatter.getSportColor(_event!.sport);
 
     final dateFormat = DateFormat('EEE, MMM d, yyyy');
     final timeFormat = DateFormat('h:mm a');
@@ -727,16 +648,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 position: PopupMenuPosition.under,
                 itemBuilder: (context) => [
                   const PopupMenuItem(
-                    value: 'edit',
-                    child: Row(
-                      children: [
-                        Icon(Icons.edit, size: 18),
-                        SizedBox(width: 8),
-                        Text('Edit Event'),
-                      ],
-                    ),
-                  ),
-                  const PopupMenuItem(
                     value: 'cancel',
                     child: Row(
                       children: [
@@ -749,7 +660,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 ],
                 onSelected: (value) {
                   if (value == 'edit') {
-                    // Navigate to edit screen with event data
                   } else if (value == 'cancel') {
                     _showCancelEventDialog();
                   }
@@ -760,13 +670,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       ),
       body: Column(
         children: [
-          // Map header
           SizedBox(
             height: 300,
             width: double.infinity,
             child: Stack(
               children: [
-                // Map
                 GoogleMap(
                   initialCameraPosition: CameraPosition(
                     target: LatLng(_event!.latitude, _event!.longitude),
@@ -781,7 +689,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                   myLocationEnabled: true,
                   myLocationButtonEnabled: false,
                 ),
-                // Map controls
                 Positioned(
                   bottom: 16,
                   right: 16,
@@ -819,7 +726,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
             ),
           ),
 
-          // Content section
           Expanded(
             child: SingleChildScrollView(
               child: Padding(
@@ -827,7 +733,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Event title and status
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -896,10 +801,122 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 20),
 
-                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.accent.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(
+                                    Icons.calendar_today,
+                                    color: AppColors.accent,
+                                    size: 16,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Date',
+                                        style: AppTextStyles.caption.copyWith(
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        dateFormat.format(_event!.dateTime),
+                                        style: AppTextStyles.bodyBold,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
 
-                    // Info cards
+                        const SizedBox(width: 16),
+
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.sportPink.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(
+                                    Icons.access_time,
+                                    color: AppColors.sportPink,
+                                    size: 16,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Time',
+                                        style: AppTextStyles.caption.copyWith(
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        timeFormat.format(_event!.dateTime),
+                                        style: AppTextStyles.bodyBold,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 10),
+
                     Row(
                       children: [
                         Expanded(
@@ -924,19 +941,16 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
                     const SizedBox(height: 24),
 
-                    // Directions button
                     CustomButton(
                       text: 'Get Directions',
                       icon: Icons.directions,
                       onPressed: _openDirections,
                       backgroundColor: AppColors.secondary,
                     ),
-                    // Sport and Organizer info
                     const SizedBox(height: 24),
 
                     Row(
                       children: [
-                        // Sport info card
                         Expanded(
                           child: Container(
                             padding: const EdgeInsets.all(16),
@@ -960,7 +974,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Icon(
-                                    _getSportIcon(_event!.sport),
+                                    SportFormatter.getSportIcon(_event!.sport),
                                     color: Colors.white,
                                     size: 16,
                                   ),
@@ -992,14 +1006,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
                         const SizedBox(width: 16),
 
-                        // Organizer info card
                         Expanded(
                           child: FutureBuilder<User?>(
                             future: Provider.of<AuthProvider>(context, listen: false)
                                 .getUserById(_event!.organizerId),
                             builder: (context, snapshot) {
                               final organizer = snapshot.data;
-                              return GestureDetector(  // Add this GestureDetector
+                              return GestureDetector(
                                 onTap: () {
                                   if (organizer != null) {
                                     Navigator.push(
@@ -1049,7 +1062,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                               ),
                                             ),
                                             const SizedBox(height: 4),
-                                            Row(  // Add a row with text and icon to indicate it's tappable
+                                            Row(
                                               children: [
                                                 Expanded(
                                                   child: Text(
@@ -1075,11 +1088,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                             },
                           ),
                         ),
-
                       ],
                     ),
 
-                    // Description section
                     if (_event!.description.isNotEmpty) ...[
                       const SizedBox(height: 32),
                       Text(
@@ -1100,7 +1111,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                       ),
                     ],
 
-                    // Participants section
                     const SizedBox(height: 32),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1132,7 +1142,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     else
                       _buildParticipantsList(isOrganizer),
 
-                    // Registration/Leave section
                     if (!isPastEvent && !isOrganizer && _event!.isOpen) ...[
                       const SizedBox(height: 32),
                       if (!isRegistered)
@@ -1297,7 +1306,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Event is full. You can still reject accepted players to make room for others.',
+                    'Event is full. The players\' list is final',
                     style: AppTextStyles.body.copyWith(
                       color: AppColors.textPrimary,
                     ),
@@ -1321,7 +1330,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 ),
               ],
             ),
-            child: InkWell(  // Add this InkWell
+            child: InkWell(
               onTap: () {
                 Navigator.push(
                   context,
@@ -1334,16 +1343,16 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               child: ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 leading: CircleAvatar(
-                  backgroundColor: _getAvatarColor(participant.name),
+                  backgroundColor: AvatarFormatter.getAvatarColor(participant.name),
                   child: Text(
-                    _getInitials(participant.name),
+                    AvatarFormatter.getInitials(participant.name),
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-                title: Row(  // Modified to show an indicator
+                title: Row(
                   children: [
                     Expanded(
                       child: Text(
@@ -1370,10 +1379,60 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     ? _buildPlayerActionButtons(participant, isEventFull)
                     : _event!.acceptedPlayers.contains(participant.id)
                     ? Container(
-                  // Same as before
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.check_circle,
+                        size: 14,
+                        color: AppColors.success,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Accepted',
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.success,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
                 )
                     : Container(
-                  // Same as before
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.warning.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.access_time,
+                        size: 14,
+                        color: AppColors.warning,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Pending',
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.warning,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -1383,7 +1442,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   }
 
   Widget _buildPlayerActionButtons(User participant, bool isEventFull) {
-    // If player is already accepted
     if (_event!.acceptedPlayers.contains(participant.id)) {
       return Container(
         padding: const EdgeInsets.symmetric(
@@ -1415,8 +1473,10 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       );
     }
 
-    // If event is full, don't show accept button for pending registrations
-    if (isEventFull) {
+    final bool isEventFullOrPast = isEventFull || _event!.dateTime.isBefore(DateTime.now());
+    final bool isEventPast = _event!.dateTime.isBefore(DateTime.now());
+
+    if (isEventFullOrPast) {
       return Container(
         padding: const EdgeInsets.symmetric(
           horizontal: 10,
@@ -1436,7 +1496,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
             ),
             const SizedBox(width: 4),
             Text(
-              'Event Full',
+              isEventFull ? 'Event Full' : 'Past Event',
               style: AppTextStyles.caption.copyWith(
                 color: AppColors.error,
                 fontWeight: FontWeight.w600,
@@ -1577,31 +1637,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     );
   }
 
-  String _getInitials(String name) {
-    if (name.isEmpty) return '';
-
-    final nameParts = name.trim().split(' ');
-    if (nameParts.length > 1) {
-      return '${nameParts.first[0]}${nameParts.last[0]}'.toUpperCase();
-    } else {
-      return name.substring(0, 1).toUpperCase();
-    }
-  }
-
-  Color _getAvatarColor(String name) {
-    if (name.isEmpty) return AppColors.primary;
-
-    final hashCode = name.hashCode;
-    final colorIndex = hashCode.abs() % AppColors.avatarColors.length;
-    return AppColors.avatarColors[colorIndex];
-  }
-
   void _showCancelEventDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Cancel Event'),
-        content: const Text('Are you sure you want to cancel this event? All participants will be notified.'),
+        content: const Text('Are you sure you want to cancel this event? All participants will be removed.'),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -1616,7 +1657,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               try {
                 final eventsProvider = Provider.of<EventsProvider>(context, listen: false);
                 await eventsProvider.cancelEvent(_event!.id);
-                await _loadEventData(); // Reload the data
+                await _loadEventData();
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:team_up/utils/sport_formatter.dart';
 import '../providers/events_provider.dart';
 import '../widgets/event_card.dart';
 import '../models/sport.dart';
@@ -16,7 +17,7 @@ class _SearchScreenState extends State<SearchScreen> {
   String? _selectedSport;
   final TextEditingController _searchController = TextEditingController();
   final List<Sport> _sports = Sport.defaultSports;
-  bool _showOnlyFutureEvents = true; // Default to showing only future events
+  bool _showOnlyFutureEvents = true;
   bool _showFilters = false;
 
   final FocusNode _searchFocusNode = FocusNode();
@@ -47,78 +48,6 @@ class _SearchScreenState extends State<SearchScreen> {
     });
   }
 
-  IconData _getSportIcon(String sport) {
-    final String sportLower = sport.toLowerCase();
-
-    if (sportLower.contains('soccer') || sportLower.contains('football')) {
-      return Icons.sports_soccer;
-    } else if (sportLower.contains('basket')) {
-      return Icons.sports_basketball;
-    } else if (sportLower.contains('tennis')) {
-      return Icons.sports_tennis;
-    } else if (sportLower.contains('volley')) {
-      return Icons.sports_volleyball;
-    } else if (sportLower.contains('baseball')) {
-      return Icons.sports_baseball;
-    } else if (sportLower.contains('cricket')) {
-      return Icons.sports_cricket;
-    } else if (sportLower.contains('run') || sportLower.contains('marathon')) {
-      return Icons.directions_run;
-    } else if (sportLower.contains('golf')) {
-      return Icons.sports_golf;
-    } else if (sportLower.contains('swim')) {
-      return Icons.pool;
-    } else if (sportLower.contains('cycle') || sportLower.contains('bike')) {
-      return Icons.directions_bike;
-    } else if (sportLower.contains('ping pong') || sportLower.contains('table tennis')) {
-      return Icons.sports_tennis; // Using tennis icon as fallback for ping pong
-    } else if (sportLower.contains('rock') && sportLower.contains('climb')) {
-      return Icons.terrain; // Mountain icon for rock climbing
-    } else if (sportLower.contains('yoga')) {
-      return Icons.self_improvement; // Yoga pose icon
-    } else if (sportLower.contains('box') || sportLower.contains('boxing')) {
-      return Icons.sports_mma; // MMA/boxing icon
-    } else {
-      return Icons.sports;
-    }
-  }
-
-  Color _getSportColor(String sport) {
-    final String sportLower = sport.toLowerCase();
-
-    if (sportLower.contains('soccer') || sportLower.contains('football')) {
-      return AppColors.sportGreen;
-    } else if (sportLower.contains('basket')) {
-      return AppColors.sportOrange;
-    } else if (sportLower.contains('tennis')) {
-      return AppColors.accent;
-    } else if (sportLower.contains('volley')) {
-      return AppColors.sportPink;
-    } else if (sportLower.contains('baseball')) {
-      return AppColors.sportPurple;
-    } else if (sportLower.contains('cricket')) {
-      return AppColors.sportCyan;
-    } else if (sportLower.contains('run') || sportLower.contains('marathon')) {
-      return AppColors.textSecondary;
-    } else if (sportLower.contains('golf')) {
-      return Colors.brown;
-    } else if (sportLower.contains('swim')) {
-      return AppColors.primary;
-    } else if (sportLower.contains('cycle') || sportLower.contains('bike')) {
-      return AppColors.sportRed;
-    } else if (sportLower.contains('ping pong') || sportLower.contains('table tennis')) {
-      return Colors.teal; // Teal for ping pong
-    } else if (sportLower.contains('rock') && sportLower.contains('climb')) {
-      return Colors.brown[700] ?? Colors.brown; // Dark brown for rock climbing
-    } else if (sportLower.contains('yoga')) {
-      return Colors.purple[300] ?? Colors.purple; // Light purple for yoga
-    } else if (sportLower.contains('box') || sportLower.contains('boxing')) {
-      return Colors.red[900] ?? Colors.red; // Dark red for boxing
-    } else {
-      return AppColors.primary;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -128,7 +57,6 @@ class _SearchScreenState extends State<SearchScreen> {
         backgroundColor: Colors.white,
         title: const Text(
           'Discover Events',
-          // style: AppTextStyles.heading3,
         ),
         actions: [
           IconButton(
@@ -143,7 +71,6 @@ class _SearchScreenState extends State<SearchScreen> {
       ),
       body: Column(
         children: [
-          // Search bar
           Container(
             color: Colors.white,
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
@@ -176,7 +103,6 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ),
 
-          // Filter section
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             height: _showFilters ? null : 0,
@@ -188,7 +114,6 @@ class _SearchScreenState extends State<SearchScreen> {
                 children: [
                   const Divider(height: 1),
 
-                  // Sport filters
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                     child: Row(
@@ -219,8 +144,8 @@ class _SearchScreenState extends State<SearchScreen> {
                       itemBuilder: (context, index) {
                         final sport = _sports[index];
                         final isSelected = sport.name == _selectedSport;
-                        final sportColor = _getSportColor(sport.name);
-                        final sportIcon = _getSportIcon(sport.name);
+                        final sportColor = SportFormatter.getSportColor(sport.name);
+                        final sportIcon = SportFormatter.getSportIcon(sport.name);
 
                         return Padding(
                           padding: const EdgeInsets.only(right: 8.0),
@@ -264,7 +189,6 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                   ),
 
-                  // Time filter
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Row(
@@ -303,7 +227,6 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ),
 
-          // Results section
           Expanded(
             child: Consumer<EventsProvider>(
               builder: (context, eventsProvider, child) {
@@ -321,7 +244,6 @@ class _SearchScreenState extends State<SearchScreen> {
                   return matchesSport && matchesSearch && isFutureEvent && !event.isCancelled;
                 }).toList();
 
-                // Sort events by date (closest first)
                 events.sort((a, b) => a.dateTime.compareTo(b.dateTime));
 
                 if (events.isEmpty) {
@@ -330,7 +252,6 @@ class _SearchScreenState extends State<SearchScreen> {
 
                 return Column(
                   children: [
-                    // Results count
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -343,7 +264,6 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                     ),
 
-                    // Results list
                     Expanded(
                       child: ListView.builder(
                         padding: const EdgeInsets.all(16),
@@ -379,59 +299,62 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget _buildEmptyState() {
     bool hasFilters = _selectedSport != null || _searchController.text.isNotEmpty;
 
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                color: AppColors.primaryLight,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                hasFilters ? Icons.filter_list_off : Icons.search_off,
-                size: 48,
-                color: AppColors.primary,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              hasFilters ? 'No matching events found' : 'No events available',
-              style: AppTextStyles.subheading,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              hasFilters
-                  ? 'Try adjusting your filters or search terms to find more events'
-                  : 'Check back later or create your own event',
-              style: AppTextStyles.body,
-              textAlign: TextAlign.center,
-            ),
-            if (hasFilters) ...[
-              const SizedBox(height: 24),
-              ElevatedButton.icon(
-                onPressed: () {
-                  _clearFilters();
-                  _clearSearch();
-                },
-                icon: const Icon(Icons.refresh),
-                label: const Text('Reset Filters'),
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+    return SingleChildScrollView(
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  hasFilters ? Icons.filter_list_off : Icons.search_off,
+                  size: 48,
+                  color: AppColors.primary,
                 ),
               ),
+              const SizedBox(height: 24),
+              Text(
+                hasFilters ? 'No matching events found' : 'No events available',
+                style: AppTextStyles.subheading,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                hasFilters
+                    ? 'Try adjusting your filters or search terms to find more events'
+                    : 'Check back later or create your own event',
+                style: AppTextStyles.body,
+                textAlign: TextAlign.center,
+              ),
+              if (hasFilters) ...[
+                const SizedBox(height: 24),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    _clearFilters();
+                    _clearSearch();
+                  },
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Reset Filters'),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

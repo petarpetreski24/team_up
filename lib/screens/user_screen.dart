@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:team_up/utils/avatar_formatter.dart';
+import 'package:team_up/utils/sport_formatter.dart';
 import '../providers/auth_provider.dart';
 import '../models/user.dart';
 import '../utils/constants.dart';
@@ -63,98 +65,6 @@ class _UserScreenState extends State<UserScreen> {
           ),
         );
       }
-    }
-  }
-
-  String _getInitials(String name) {
-    if (name.isEmpty) return '';
-
-    final nameParts = name.trim().split(' ');
-    if (nameParts.length > 1) {
-      return '${nameParts.first[0]}${nameParts.last[0]}'.toUpperCase();
-    } else {
-      return name.substring(0, 1).toUpperCase();
-    }
-  }
-
-  Color _getAvatarColor(String name) {
-    if (name.isEmpty) return AppColors.primary;
-
-    // Generate a consistent color based on the name
-    final hashCode = name.hashCode;
-    final colorIndex = hashCode.abs() % AppColors.avatarColors.length;
-    return AppColors.avatarColors[colorIndex];
-  }
-
-  IconData _getSportIcon(String sport) {
-    final String sportLower = sport.toLowerCase();
-
-    if (sportLower.contains('soccer') || sportLower.contains('football')) {
-      return Icons.sports_soccer;
-    } else if (sportLower.contains('basket')) {
-      return Icons.sports_basketball;
-    } else if (sportLower.contains('tennis')) {
-      return Icons.sports_tennis;
-    } else if (sportLower.contains('volley')) {
-      return Icons.sports_volleyball;
-    } else if (sportLower.contains('baseball')) {
-      return Icons.sports_baseball;
-    } else if (sportLower.contains('cricket')) {
-      return Icons.sports_cricket;
-    } else if (sportLower.contains('run') || sportLower.contains('marathon')) {
-      return Icons.directions_run;
-    } else if (sportLower.contains('golf')) {
-      return Icons.sports_golf;
-    } else if (sportLower.contains('swim')) {
-      return Icons.pool;
-    } else if (sportLower.contains('cycle') || sportLower.contains('bike')) {
-      return Icons.directions_bike;
-    } else if (sportLower.contains('ping pong') || sportLower.contains('table tennis')) {
-      return Icons.sports_tennis; // Using tennis icon as fallback for ping pong
-    } else if (sportLower.contains('rock') && sportLower.contains('climb')) {
-      return Icons.terrain; // Mountain icon for rock climbing
-    } else if (sportLower.contains('yoga')) {
-      return Icons.self_improvement; // Yoga pose icon
-    } else if (sportLower.contains('box') || sportLower.contains('boxing')) {
-      return Icons.sports_mma; // MMA/boxing icon
-    } else {
-      return Icons.sports;
-    }
-  }
-
-  Color _getSportColor(String sport) {
-    final String sportLower = sport.toLowerCase();
-
-    if (sportLower.contains('soccer') || sportLower.contains('football')) {
-      return AppColors.sportGreen;
-    } else if (sportLower.contains('basket')) {
-      return AppColors.sportOrange;
-    } else if (sportLower.contains('tennis')) {
-      return AppColors.accent;
-    } else if (sportLower.contains('volley')) {
-      return AppColors.sportPink;
-    } else if (sportLower.contains('baseball')) {
-      return AppColors.sportPurple;
-    } else if (sportLower.contains('cricket')) {
-      return AppColors.sportCyan;
-    } else if (sportLower.contains('run') || sportLower.contains('marathon')) {
-      return AppColors.textSecondary;
-    } else if (sportLower.contains('golf')) {
-      return Colors.brown;
-    } else if (sportLower.contains('swim')) {
-      return AppColors.primary;
-    } else if (sportLower.contains('cycle') || sportLower.contains('bike')) {
-      return AppColors.sportRed;
-    } else if (sportLower.contains('ping pong') || sportLower.contains('table tennis')) {
-      return Colors.teal; // Teal for ping pong
-    } else if (sportLower.contains('rock') && sportLower.contains('climb')) {
-      return Colors.brown[700] ?? Colors.brown; // Dark brown for rock climbing
-    } else if (sportLower.contains('yoga')) {
-      return Colors.purple[300] ?? Colors.purple; // Light purple for yoga
-    } else if (sportLower.contains('box') || sportLower.contains('boxing')) {
-      return Colors.red[900] ?? Colors.red; // Dark red for boxing
-    } else {
-      return AppColors.primary;
     }
   }
 
@@ -245,7 +155,6 @@ class _UserScreenState extends State<UserScreen> {
       ),
       body: Column(
         children: [
-          // User header with gradient background
           Container(
             height: 220,
             width: double.infinity,
@@ -261,7 +170,6 @@ class _UserScreenState extends State<UserScreen> {
             ),
             child: Stack(
               children: [
-                // Decorative elements
                 Positioned(
                   top: -50,
                   left: -20,
@@ -287,17 +195,16 @@ class _UserScreenState extends State<UserScreen> {
                   ),
                 ),
 
-                // User avatar and info
                 Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 16), // Space for app bar
+                      const SizedBox(height: 16),
                       Container(
                         width: 100,
                         height: 100,
                         decoration: BoxDecoration(
-                          color: _getAvatarColor(_user!.name),
+                          color: AvatarFormatter.getAvatarColor(_user!.name),
                           shape: BoxShape.circle,
                           border: Border.all(color: Colors.white, width: 3),
                           boxShadow: [
@@ -310,7 +217,7 @@ class _UserScreenState extends State<UserScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            _getInitials(_user!.name),
+                            AvatarFormatter.getInitials(_user!.name),
                             style: AppTextStyles.heading2.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
@@ -340,7 +247,6 @@ class _UserScreenState extends State<UserScreen> {
             ),
           ),
 
-          // Sports section
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(20),
@@ -353,20 +259,19 @@ class _UserScreenState extends State<UserScreen> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 8), // Reduced from 16 to 8
+                  const SizedBox(height: 8),
 
-                  // Sports list
                   Expanded(
                     child: _user!.sportsLevels.isEmpty
                         ? _buildEmptySportsState()
                         : ListView.builder(
-                      padding: const EdgeInsets.only(top: 8), // Added small top padding
+                      padding: const EdgeInsets.only(top: 8),
                       itemCount: _user!.sportsLevels.length,
                       itemBuilder: (context, index) {
                         final sport = _user!.sportsLevels.keys.elementAt(index);
                         final level = _user!.sportsLevels[sport] ?? '';
-                        final sportColor = _getSportColor(sport);
-                        final sportIcon = _getSportIcon(sport);
+                        final sportColor = SportFormatter.getSportColor(sport);
+                        final sportIcon = SportFormatter.getSportIcon(sport);
 
                         return Container(
                           margin: const EdgeInsets.only(bottom: 16),
@@ -439,7 +344,6 @@ class _UserScreenState extends State<UserScreen> {
                     ),
                   ),
 
-                  // User activity stats
                   const SizedBox(height: 24),
                   Container(
                     padding: const EdgeInsets.all(16),

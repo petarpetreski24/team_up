@@ -15,6 +15,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
+  PageController _pageController = PageController(initialPage: 0);
 
   final List<Widget> _screens = const [
     HomeScreen(),
@@ -25,11 +26,46 @@ class _MainScreenState extends State<MainScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _onNavItemTapped(int index) {
+    final int distance = (index - _currentIndex).abs();
+
+    setState(() {
+      _currentIndex = index;
+    });
+
+    final int duration = distance == 1
+        ? 200
+        : 100 + (distance * 50);
+
+    _pageController.animateToPage(
+      index,
+      duration: Duration(milliseconds: duration),
+      curve: Curves.fastOutSlowIn,
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
+      body: PageView(
+        controller: _pageController,
+        physics: const NeverScrollableScrollPhysics(),
         children: _screens,
+        onPageChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -49,7 +85,7 @@ class _MainScreenState extends State<MainScreen> {
               borderRadius: BorderRadius.circular(16),
               child: BottomNavigationBar(
                 currentIndex: _currentIndex,
-                onTap: (index) => setState(() => _currentIndex = index),
+                onTap: _onNavItemTapped,
                 items: [
                   _buildNavItem(Icons.home_outlined, Icons.home, 'Home'),
                   _buildNavItem(Icons.search_outlined, Icons.search, 'Search'),
@@ -73,7 +109,7 @@ class _MainScreenState extends State<MainScreen> {
       ),
       floatingActionButton: _currentIndex == 2 ? null : FloatingActionButton(
         onPressed: () {
-          setState(() => _currentIndex = 2); // Navigate to Create screen
+          _onNavItemTapped(2);
         },
         backgroundColor: AppColors.primary,
         child: const Icon(Icons.add, color: Colors.white),

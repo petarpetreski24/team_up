@@ -1,7 +1,10 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:team_up/utils/avatar_formatter.dart';
+import 'package:team_up/utils/sport_formatter.dart';
 import '../providers/auth_provider.dart';
 import '../utils/constants.dart';
 import '../routes/app_router.dart';
@@ -15,24 +18,30 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
   File? _profileImage;
   final ImagePicker _picker = ImagePicker();
   final ScrollController _scrollController = ScrollController();
   double _avatarSize = 120.0;
   double _avatarPosition = 0.0;
   final double _minAvatarSize = 40.0;
+  late AnimationController _animationController;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_updateAvatarSizeOnScroll);
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 20),
+    )..repeat();
   }
 
   @override
   void dispose() {
     _scrollController.removeListener(_updateAvatarSizeOnScroll);
     _scrollController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -40,13 +49,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final double appBarHeight = 150.0;
     final double maxAvatarSize = 120.0;
     final double scrollOffset = _scrollController.offset;
-    final double maxOffset = 100.0; // Amount of scroll before avatar is fully transformed
+    final double maxOffset = 100.0;
 
-    // Calculate avatar size (shrinks as you scroll)
     final double newSize = (maxAvatarSize - ((scrollOffset / maxOffset) * (maxAvatarSize - _minAvatarSize)))
         .clamp(_minAvatarSize, maxAvatarSize);
 
-    // Calculate position in the app bar (moves up as you scroll)
     final double newPosition = (scrollOffset / maxOffset).clamp(0.0, 1.0);
 
     if (newSize != _avatarSize || newPosition != _avatarPosition) {
@@ -55,6 +62,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _avatarPosition = newPosition;
       });
     }
+  }
+
+  double _getSinValue(double value) {
+    return sin(value * 3.14159);
+  }
+
+  double _getCosValue(double value) {
+    return cos(value * 3.14159);
   }
 
   Future<void> _pickImage(ImageSource source) async {
@@ -71,7 +86,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _profileImage = File(pickedFile.path);
         });
 
-        // Show loading indicator
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Uploading profile picture...'),
@@ -79,7 +93,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         );
 
-        // Upload the image
         final url = await Provider.of<AuthProvider>(context, listen: false)
             .uploadProfileImage(_profileImage!);
 
@@ -91,14 +104,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           );
         } else {
-          // Show error message if upload failed
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Failed to upload profile picture. Please try again.'),
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: Colors.red,
-            ),
-          );
+          // Error
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   const SnackBar(
+          //     content: Text('Failed to upload profile picture. Please try again.'),
+          //     behavior: SnackBarBehavior.floating,
+          //     backgroundColor: Colors.red,
+          //   ),
+          // );
         }
       }
     } catch (e) {
@@ -227,7 +240,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          // Main content
           CustomScrollView(
             controller: _scrollController,
             slivers: [
@@ -259,7 +271,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   background: Stack(
                     fit: StackFit.expand,
                     children: [
-                      // Background gradient
                       Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -273,37 +284,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
 
-                      // Circle decorations
-                      Positioned(
-                        top: -50,
-                        left: -20,
-                        child: Container(
-                          width: 150,
-                          height: 150,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.1),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        bottom: -40,
-                        right: -30,
-                        child: Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.1),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
+                      AnimatedBuilder(
+                        animation: _animationController,
+                        builder: (context, child) {
+                          return Stack(
+                            children: [
+                              Positioned(
+                                top: -30 + 10 * _getCosValue(_animationController.value * 3),
+                                left: -20 + 10 * _getSinValue(_animationController.value * 2),
+                                child: Container(
+                                  width: 150,
+                                  height: 150,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                top: 50 + 15 * _getSinValue(_animationController.value * 5),
+                                right: 40 + 20 * _getCosValue(_animationController.value * 4),
+                                child: Container(
+                                  width: 60,
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.08),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                bottom: -40 + 10 * _getSinValue(_animationController.value * 3),
+                                right: -30 + 10 * _getCosValue(_animationController.value * 4),
+                                child: Container(
+                                  width: 100,
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ],
                   ),
                 ),
               ),
 
-              // Avatar space - but now the avatar is part of the content that scrolls
               SliverToBoxAdapter(
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 0),
@@ -312,7 +342,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
 
-              // User info section
               SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.only(
@@ -322,7 +351,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   child: Column(
                     children: [
-                      // User name and email
                       Text(
                         user.name,
                         style: AppTextStyles.heading2.copyWith(
@@ -341,7 +369,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       const SizedBox(height: 24),
 
-                      // Statistics card
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -385,7 +412,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
 
-              // My Sports Section
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
@@ -411,7 +437,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       const SizedBox(height: 24),
 
-                      // Action buttons
                       CustomButton(
                         text: 'Edit Profile',
                         icon: Icons.edit,
@@ -442,7 +467,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           ),
 
-          // Animated avatar that moves with scroll
           if (_avatarPosition < 0.9)
             Positioned(
               top: appBarHeight - (_avatarSize / 2) + (_avatarPosition * appBarHeight / 2),
@@ -473,7 +497,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       child: ClipOval(
         child: Container(
-          color: _getAvatarColor(name),
+          color: AvatarFormatter.getAvatarColor(name),
           child: _profileImage != null
               ? Image.file(
             _profileImage!,
@@ -486,7 +510,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             errorBuilder: (context, error, stackTrace) {
               return Center(
                 child: Text(
-                  _getInitials(name),
+                  AvatarFormatter.getInitials(name),
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
@@ -498,7 +522,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           )
               : Center(
             child: Text(
-              _getInitials(name),
+              AvatarFormatter.getInitials(name),
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
@@ -529,10 +553,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       child: Stack(
         children: [
-          // The avatar image or initials placeholder
           ClipOval(
             child: Container(
-              color: _getAvatarColor(name),
+              color: AvatarFormatter.getAvatarColor(name),
               child: _profileImage != null
                   ? Image.file(
                 _profileImage!,
@@ -557,7 +580,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 errorBuilder: (context, error, stackTrace) {
                   return Center(
                     child: Text(
-                      _getInitials(name),
+                      AvatarFormatter.getInitials(name),
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -569,7 +592,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               )
                   : Center(
                 child: Text(
-                  _getInitials(name),
+                  AvatarFormatter.getInitials(name),
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
@@ -580,7 +603,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
 
-          // Camera button - fades out while scrolling
           if (_avatarPosition < 0.5)
             Positioned(
               bottom: 0,
@@ -751,8 +773,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildSportItem(BuildContext context, String sport, String level) {
-    final Color sportColor = _getSportColor(sport);
-    final IconData sportIcon = _getSportIcon(sport);
+    final Color sportColor = SportFormatter.getSportColor(sport);
+    final IconData sportIcon = SportFormatter.getSportIcon(sport);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -807,82 +829,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
     );
-  }
-
-  String _getInitials(String name) {
-    if (name.isEmpty) return '';
-
-    final nameParts = name.trim().split(' ');
-    if (nameParts.length > 1) {
-      return '${nameParts.first[0]}${nameParts.last[0]}'.toUpperCase();
-    } else {
-      return name.substring(0, 1).toUpperCase();
-    }
-  }
-
-  Color _getAvatarColor(String name) {
-    if (name.isEmpty) return AppColors.primary;
-
-    // Generate a consistent color based on the name
-    final hashCode = name.hashCode;
-    final colorIndex = hashCode.abs() % AppColors.avatarColors.length;
-    return AppColors.avatarColors[colorIndex];
-  }
-
-  IconData _getSportIcon(String sport) {
-    final String sportLower = sport.toLowerCase();
-
-    if (sportLower.contains('soccer') || sportLower.contains('football')) {
-      return Icons.sports_soccer;
-    } else if (sportLower.contains('basket')) {
-      return Icons.sports_basketball;
-    } else if (sportLower.contains('tennis')) {
-      return Icons.sports_tennis;
-    } else if (sportLower.contains('volley')) {
-      return Icons.sports_volleyball;
-    } else if (sportLower.contains('baseball')) {
-      return Icons.sports_baseball;
-    } else if (sportLower.contains('cricket')) {
-      return Icons.sports_cricket;
-    } else if (sportLower.contains('run') || sportLower.contains('marathon')) {
-      return Icons.directions_run;
-    } else if (sportLower.contains('golf')) {
-      return Icons.sports_golf;
-    } else if (sportLower.contains('swim')) {
-      return Icons.pool;
-    } else if (sportLower.contains('cycle') || sportLower.contains('bike')) {
-      return Icons.directions_bike;
-    } else {
-      return Icons.sports;
-    }
-  }
-
-  Color _getSportColor(String sport) {
-    final String sportLower = sport.toLowerCase();
-
-    if (sportLower.contains('soccer') || sportLower.contains('football')) {
-      return AppColors.sportGreen;
-    } else if (sportLower.contains('basket')) {
-      return AppColors.sportOrange;
-    } else if (sportLower.contains('tennis')) {
-      return AppColors.accent;
-    } else if (sportLower.contains('volley')) {
-      return AppColors.sportPink;
-    } else if (sportLower.contains('baseball')) {
-      return AppColors.sportPurple;
-    } else if (sportLower.contains('cricket')) {
-      return AppColors.sportCyan;
-    } else if (sportLower.contains('run') || sportLower.contains('marathon')) {
-      return AppColors.textSecondary;
-    } else if (sportLower.contains('golf')) {
-      return Colors.brown;
-    } else if (sportLower.contains('swim')) {
-      return AppColors.primary;
-    } else if (sportLower.contains('cycle') || sportLower.contains('bike')) {
-      return AppColors.sportRed;
-    } else {
-      return AppColors.primary;
-    }
   }
 }
 

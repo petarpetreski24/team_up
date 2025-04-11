@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart'; // Add this import
+import 'package:firebase_storage/firebase_storage.dart';
 import '../models/user.dart' as app;
 
 class AuthProvider with ChangeNotifier {
@@ -15,7 +15,6 @@ class AuthProvider with ChangeNotifier {
   app.User? get currentUser => _currentUser;
 
   AuthProvider() {
-    // Listen to authentication state changes
     _auth.authStateChanges().listen((firebase_auth.User? firebaseUser) {
       if (firebaseUser != null) {
         _fetchUserData(firebaseUser.uid);
@@ -26,7 +25,6 @@ class AuthProvider with ChangeNotifier {
     });
   }
 
-  // Fetch user data from Firestore
   Future<void> _fetchUserData(String uid) async {
     try {
       final userDoc = await _firestore.collection('users').doc(uid).get();
@@ -42,7 +40,6 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Login with email and password
   Future<bool> login(String email, String password) async {
     try {
       final userCredential = await _auth.signInWithEmailAndPassword(
@@ -171,7 +168,6 @@ class AuthProvider with ChangeNotifier {
         print('Upload error: $e');
       });
 
-      // Wait for the upload to complete
       final snapshot = await uploadTask;
       final downloadUrl = await snapshot.ref.getDownloadURL();
 

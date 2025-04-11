@@ -1,13 +1,38 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:team_up/utils/avatar_formatter.dart';
 import '../providers/auth_provider.dart';
 import '../providers/events_provider.dart';
 import '../widgets/event_card.dart';
 import '../utils/constants.dart';
 import '../utils/date_formatter.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 20),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +69,6 @@ class HomeScreen extends StatelessWidget {
               event.acceptedPlayers.length < event.maxPlayers &&
               event.dateTime.isAfter(thirtyMinutesFromNow)).toList();
 
-          // Extract events happening today
           final todayEvents = userEvents.where((event) {
             return DateFormatter.isSameDay(event.dateTime, DateTime.now());
           }).toList();
@@ -55,11 +79,12 @@ class HomeScreen extends StatelessWidget {
 
           return CustomScrollView(
             slivers: [
-              // App Bar
+              // Animated App Bar
               SliverAppBar(
-                expandedHeight: 180,
+                expandedHeight: 170,
                 pinned: true,
-                backgroundColor: AppColors.primary,
+                backgroundColor: Colors.transparent,
+                elevation: 0,
                 flexibleSpace: FlexibleSpaceBar(
                   background: Container(
                     decoration: BoxDecoration(
@@ -74,33 +99,57 @@ class HomeScreen extends StatelessWidget {
                     ),
                     child: Stack(
                       children: [
-                        // Decorative elements
-                        Positioned(
-                          top: -50,
-                          right: -50,
-                          child: Container(
-                            width: 150,
-                            height: 150,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: -20,
-                          left: -20,
-                          child: Container(
-                            width: 100,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                          ),
+                        // Animated circles
+                        AnimatedBuilder(
+                          animation: _animationController,
+                          builder: (context, child) {
+                            return Stack(
+                              children: [
+                                // Top right animated circle
+                                Positioned(
+                                  top: -30 + 10 * _getCosValue(_animationController.value * 3),
+                                  right: -30 + 10 * _getSinValue(_animationController.value * 2),
+                                  child: Container(
+                                    width: 120,
+                                    height: 120,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.1),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                ),
+                                // Middle animated circle
+                                Positioned(
+                                  top: 50 + 15 * _getSinValue(_animationController.value * 5),
+                                  right: 100 + 20 * _getCosValue(_animationController.value * 4),
+                                  child: Container(
+                                    width: 60,
+                                    height: 60,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.08),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                ),
+                                // Bottom left animated circle
+                                Positioned(
+                                  bottom: -20 + 10 * _getSinValue(_animationController.value * 3),
+                                  left: -20 + 10 * _getCosValue(_animationController.value * 4),
+                                  child: Container(
+                                    width: 100,
+                                    height: 100,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.1),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         ),
 
-                        // Content
+                        // User greeting and info
                         Padding(
                           padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
                           child: Column(
@@ -110,17 +159,29 @@ class HomeScreen extends StatelessWidget {
                                 children: [
                                   if (currentUser != null)
                                     Container(
-                                      width: 40,
-                                      height: 40,
+                                      width: 45,
+                                      height: 45,
                                       decoration: BoxDecoration(
-                                        color: _getAvatarColor(currentUser.name),
+                                        color: AvatarFormatter.getAvatarColor(currentUser.name),
                                         shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.white.withOpacity(0.3),
+                                          width: 2,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.1),
+                                            blurRadius: 10,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                        ],
                                       ),
                                       child: Center(
                                         child: Text(
-                                          _getInitials(currentUser.name),
+                                          AvatarFormatter.getInitials(currentUser.name),
                                           style: AppTextStyles.bodyBold.copyWith(
                                             color: Colors.white,
+                                            fontSize: 16,
                                           ),
                                         ),
                                       ),
@@ -162,6 +223,13 @@ class HomeScreen extends StatelessWidget {
                                       decoration: BoxDecoration(
                                         color: Colors.white.withOpacity(0.2),
                                         borderRadius: BorderRadius.circular(16),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.05),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
                                       ),
                                       child: Row(
                                         children: [
@@ -190,10 +258,19 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+                // Rounded bottom edge
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(20),
+                    bottomRight: Radius.circular(20),
+                  ),
+                ),
               ),
+
+              // Content sections
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -203,9 +280,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                       if (userEvents.isNotEmpty)
                         TextButton(
-                          onPressed: () {
-                            // Navigate to all user events
-                          },
+                          onPressed: () {},
                           child: Text(
                             '',
                             style: AppTextStyles.caption.copyWith(
@@ -213,14 +288,12 @@ class HomeScreen extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                        )
-                      ,
+                        ),
                     ],
                   ),
                 ),
               ),
 
-              // Your Events List
               SliverToBoxAdapter(
                 child: SizedBox(
                   child: userEvents.isEmpty
@@ -233,7 +306,7 @@ class HomeScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: userEvents.length > 3 ? 3 : userEvents.length, // Limit to 3
+                    itemCount: userEvents.length,
                     itemBuilder: (context, index) {
                       final event = userEvents[index];
                       final isAccepted = event.acceptedPlayers.contains(currentUser?.id);
@@ -251,7 +324,6 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
 
-              // Available Events Section
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
@@ -264,9 +336,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                       if (availableEvents.isNotEmpty)
                         TextButton(
-                          onPressed: () {
-                            // Navigate to all available events
-                          },
+                          onPressed: () {},
                           child: Text(
                             '',
                             style: AppTextStyles.caption.copyWith(
@@ -280,7 +350,6 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
 
-              // Available Events List
               SliverToBoxAdapter(
                 child: SizedBox(
                   child: availableEvents.isEmpty
@@ -290,7 +359,7 @@ class HomeScreen extends StatelessWidget {
                     icon: Icons.search_off,
                   )
                       : ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 100), // Extra padding at bottom
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: availableEvents.length,
@@ -314,56 +383,15 @@ class HomeScreen extends StatelessWidget {
           );
         },
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
-  Widget _buildCategoryItem(
-      BuildContext context,
-      String name,
-      IconData icon,
-      Color color
-      ) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 16),
-      child: Column(
-        children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: color.withOpacity(0.2),
-                width: 1,
-              ),
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                customBorder: const CircleBorder(),
-                onTap: () {
-                  // Filter by category
-                },
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: 28,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            name,
-            style: AppTextStyles.caption.copyWith(
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
+  double _getSinValue(double value) {
+    return sin(value * 3.14159);
+  }
+
+  double _getCosValue(double value) {
+    return cos(value * 3.14159);
   }
 
   Widget _buildEmptyState(BuildContext context) {
@@ -434,6 +462,13 @@ class HomeScreen extends StatelessWidget {
             color: AppColors.divider,
             width: 1,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Column(
           children: [
@@ -457,25 +492,5 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _getInitials(String name) {
-    if (name.isEmpty) return '';
-
-    final nameParts = name.trim().split(' ');
-    if (nameParts.length > 1) {
-      return '${nameParts.first[0]}${nameParts.last[0]}'.toUpperCase();
-    } else {
-      return name.substring(0, 1).toUpperCase();
-    }
-  }
-
-  Color _getAvatarColor(String name) {
-    if (name.isEmpty) return AppColors.primary;
-
-    // Generate a consistent color based on the name
-    final hashCode = name.hashCode;
-    final colorIndex = hashCode.abs() % AppColors.avatarColors.length;
-    return AppColors.avatarColors[colorIndex];
   }
 }

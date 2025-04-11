@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
+import 'package:team_up/utils/sport_formatter.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
@@ -56,7 +57,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-      // Create sportsLevels map if sport and level are selected
       final Map<String, String> sportsLevels = {};
       if (_selectedSport != null && _selectedLevel != null) {
         sportsLevels[_selectedSport!] = _selectedLevel!;
@@ -127,7 +127,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   void _nextStep() {
     if (_currentStep == 0) {
-      // Validate first part before proceeding
       bool isValid = true;
       if (_nameController.text.isEmpty) {
         isValid = false;
@@ -143,7 +142,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
 
       if (!isValid) {
-        // Show validation issues
         _formKey.currentState?.validate();
         return;
       }
@@ -158,62 +156,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() {
       _currentStep = 0;
     });
-  }
-
-  IconData _getSportIcon(String sport) {
-    final String sportLower = sport.toLowerCase();
-
-    if (sportLower.contains('soccer') || sportLower.contains('football')) {
-      return Icons.sports_soccer;
-    } else if (sportLower.contains('basket')) {
-      return Icons.sports_basketball;
-    } else if (sportLower.contains('tennis')) {
-      return Icons.sports_tennis;
-    } else if (sportLower.contains('volley')) {
-      return Icons.sports_volleyball;
-    } else if (sportLower.contains('baseball')) {
-      return Icons.sports_baseball;
-    } else if (sportLower.contains('cricket')) {
-      return Icons.sports_cricket;
-    } else if (sportLower.contains('run') || sportLower.contains('marathon')) {
-      return Icons.directions_run;
-    } else if (sportLower.contains('golf')) {
-      return Icons.sports_golf;
-    } else if (sportLower.contains('swim')) {
-      return Icons.pool;
-    } else if (sportLower.contains('cycle') || sportLower.contains('bike')) {
-      return Icons.directions_bike;
-    } else {
-      return Icons.sports;
-    }
-  }
-
-  Color _getSportColor(String sport) {
-    final String sportLower = sport.toLowerCase();
-
-    if (sportLower.contains('soccer') || sportLower.contains('football')) {
-      return AppColors.sportGreen;
-    } else if (sportLower.contains('basket')) {
-      return AppColors.sportOrange;
-    } else if (sportLower.contains('tennis')) {
-      return AppColors.accent;
-    } else if (sportLower.contains('volley')) {
-      return AppColors.sportPink;
-    } else if (sportLower.contains('baseball')) {
-      return AppColors.sportPurple;
-    } else if (sportLower.contains('cricket')) {
-      return AppColors.sportCyan;
-    } else if (sportLower.contains('run') || sportLower.contains('marathon')) {
-      return AppColors.textSecondary;
-    } else if (sportLower.contains('golf')) {
-      return Colors.brown;
-    } else if (sportLower.contains('swim')) {
-      return AppColors.primary;
-    } else if (sportLower.contains('cycle') || sportLower.contains('bike')) {
-      return AppColors.sportRed;
-    } else {
-      return AppColors.primary;
-    }
   }
 
   @override
@@ -239,7 +181,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // App logo and name
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -264,7 +205,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        'SportMate',
+                        'TeamUp',
                         style: AppTextStyles.heading3.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
@@ -294,7 +235,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   const SizedBox(height: 32),
 
-                  // Progress indicator
                   Row(
                     children: [
                       Expanded(
@@ -323,7 +263,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   const SizedBox(height: 32),
 
-                  // Step 1: Account Details
                   if (_currentStep == 0) ...[
                     CustomTextField(
                       label: 'Full Name',
@@ -399,7 +338,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ],
 
-                  // Step 2: Sports Preferences
                   if (_currentStep == 1) ...[
                     Text(
                       'What\'s your favorite sport?',
@@ -407,7 +345,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Sport selection grid
                     GridView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -421,8 +358,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       itemBuilder: (context, index) {
                         final sport = _sports[index];
                         final bool isSelected = _selectedSport == sport.name;
-                        final sportIcon = _getSportIcon(sport.name);
-                        final sportColor = _getSportColor(sport.name);
+                        final sportIcon = SportFormatter.getSportIcon(sport.name);
+                        final sportColor = SportFormatter.getSportColor(sport.name);
 
                         return GestureDetector(
                           onTap: () {
@@ -481,7 +418,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       },
                     ),
 
-                    // More sports dropdown option
                     if (_sports.length > 6) ...[
                       const SizedBox(height: 16),
                       Container(
@@ -510,8 +446,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 child: Row(
                                   children: [
                                     Icon(
-                                      _getSportIcon(sport.name),
-                                      color: _getSportColor(sport.name),
+                                      SportFormatter.getSportIcon(sport.name),
+                                      color: SportFormatter.getSportColor(sport.name),
                                       size: 20,
                                     ),
                                     const SizedBox(width: 12),
@@ -533,7 +469,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                     const SizedBox(height: 24),
 
-                    // Skill level selection
                     if (_selectedSport != null) ...[
                       Text(
                         'What\'s your skill level in $_selectedSport?',
@@ -541,13 +476,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Skill level cards
                       ...(_sports
                           .firstWhere((sport) => sport.name == _selectedSport)
                           .skillLevels
                           .map((level) {
                         final bool isSelected = _selectedLevel == level;
-                        final Color sportColor = _getSportColor(_selectedSport!);
+                        final Color sportColor = SportFormatter.getSportColor(_selectedSport!);
 
                         return GestureDetector(
                           onTap: () {
@@ -593,7 +527,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         ),
                                       ),
                                       Text(
-                                        _getLevelDescription(level),
+                                        SportFormatter.getLevelDescription(level),
                                         style: AppTextStyles.caption.copyWith(
                                           color: AppColors.textSecondary,
                                         ),
@@ -635,7 +569,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                     const SizedBox(height: 32),
 
-                    // Navigation buttons
                     Row(
                       children: [
                         Expanded(
@@ -661,7 +594,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   const SizedBox(height: 32),
 
-                  // Login link
                   Center(
                     child: RichText(
                       text: TextSpan(
@@ -692,20 +624,5 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
-  }
-
-  String _getLevelDescription(String level) {
-    switch (level.toLowerCase()) {
-      case 'beginner':
-        return 'Just starting out, learning the basics';
-      case 'intermediate':
-        return 'Familiar with the game, some experience';
-      case 'advanced':
-        return 'Skilled player with significant experience';
-      case 'professional':
-        return 'Expert level with competitive background';
-      default:
-        return 'Select your skill level';
-    }
   }
 }
