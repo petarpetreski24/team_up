@@ -332,135 +332,167 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                     ],
                   ),
                 ),
-              ),
-
-              SliverToBoxAdapter(
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 0),
-                  height: _avatarPosition < 0.9 ? maxAvatarSize / 2 : 0,
-                  curve: Curves.easeOut,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(20),
+                    bottomRight: Radius.circular(20),
+                  ),
                 ),
               ),
 
               SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    top: _avatarPosition < 0.9 ? 60 : 16,
-                    left: 20,
-                    right: 20,
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        user.name,
-                        style: AppTextStyles.heading2.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                        textAlign: TextAlign.center,
+                child: Stack(
+                  children: [
+                    SizedBox(
+                      height: 20,
+                    ),
+                    ClipRRect(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        user.email,
-                        style: AppTextStyles.body.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.primary.withOpacity(0.1),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
+                      child: Container(
+                        color: Colors.white,
+                        child: Column(
+                          children: [
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 0),
+                              height: _avatarPosition < 0.9 ? maxAvatarSize / 2 : 0,
+                              curve: Curves.easeOut,
                             ),
                           ],
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              _StatItem(
-                                label: 'Hosted',
-                                value: user.hostedEvents.length.toString(),
-                                icon: Icons.event_available,
-                                color: AppColors.accent,
-                              ),
-                              Container(
-                                height: 40,
-                                width: 1,
-                                color: AppColors.divider,
-                              ),
-                              _StatItem(
-                                label: 'Participated',
-                                value: user.participatedEvents.length.toString(),
-                                icon: Icons.sports_handball,
-                                color: AppColors.sportOrange,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              SliverToBoxAdapter(
+                child: Container(
+                  color: Colors.white,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      top: _avatarPosition < 0.9 ? 60 : 16,
+                      left: 20,
+                      right: 20,
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          user.name,
+                          style: AppTextStyles.heading2.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          user.email,
+                          style: AppTextStyles.body.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primary.withOpacity(0.1),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
                               ),
                             ],
                           ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                _StatItem(
+                                  label: 'Hosted',
+                                  value: user.hostedEvents.length.toString(),
+                                  icon: Icons.event_available,
+                                  color: AppColors.accent,
+                                ),
+                                Container(
+                                  height: 40,
+                                  width: 1,
+                                  color: AppColors.divider,
+                                ),
+                                _StatItem(
+                                  label: 'Participated',
+                                  value: user.participatedEvents.length.toString(),
+                                  icon: Icons.sports_handball,
+                                  color: AppColors.sportOrange,
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
 
               SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildSectionHeader('My Sports', Icons.sports),
-                      const SizedBox(height: 12),
+                child: Container(
+                  color: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSectionHeader('My Sports', Icons.sports),
+                        const SizedBox(height: 12),
 
-                      if (user.sportsLevels.isEmpty)
-                        _buildEmptySportsState(context)
-                      else
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: user.sportsLevels.length,
-                          itemBuilder: (context, index) {
-                            final sport = user.sportsLevels.keys.elementAt(index);
-                            final level = user.sportsLevels[sport];
-                            return _buildSportItem(context, sport, level ?? '');
+                        if (user.sportsLevels.isEmpty)
+                          _buildEmptySportsState(context)
+                        else
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: user.sportsLevels.length,
+                            itemBuilder: (context, index) {
+                              final sport = user.sportsLevels.keys.elementAt(index);
+                              final level = user.sportsLevels[sport];
+                              return _buildSportItem(context, sport, level ?? '');
+                            },
+                          ),
+
+                        const SizedBox(height: 24),
+
+                        CustomButton(
+                          text: 'Edit Profile',
+                          icon: Icons.edit,
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const EditProfileScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        CustomButton(
+                          text: 'Logout',
+                          icon: Icons.logout,
+                          isOutlined: true,
+                          onPressed: () {
+                            _showLogoutDialog(context);
                           },
                         ),
 
-                      const SizedBox(height: 24),
-
-                      CustomButton(
-                        text: 'Edit Profile',
-                        icon: Icons.edit,
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const EditProfileScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      CustomButton(
-                        text: 'Logout',
-                        icon: Icons.logout,
-                        isOutlined: true,
-                        onPressed: () {
-                          _showLogoutDialog(context);
-                        },
-                      ),
-
-                      const SizedBox(height: 32),
-                    ],
+                        const SizedBox(height: 32),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -482,55 +514,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               ),
             ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSmallAvatar(String name, String? profileImageUrl) {
-    return Container(
-      width: 36,
-      height: 36,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: 2),
-      ),
-      child: ClipOval(
-        child: Container(
-          color: AvatarFormatter.getAvatarColor(name),
-          child: _profileImage != null
-              ? Image.file(
-            _profileImage!,
-            fit: BoxFit.cover,
-          )
-              : profileImageUrl != null
-              ? Image.network(
-            profileImageUrl,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Center(
-                child: Text(
-                  AvatarFormatter.getInitials(name),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                  ),
-                ),
-              );
-            },
-          )
-              : Center(
-            child: Text(
-              AvatarFormatter.getInitials(name),
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -560,11 +543,15 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   ? Image.file(
                 _profileImage!,
                 fit: BoxFit.cover,
+                width: _avatarSize,
+                height: _avatarSize,
               )
                   : profileImageUrl != null
                   ? Image.network(
                 profileImageUrl,
                 fit: BoxFit.cover,
+                width: _avatarSize,
+                height: _avatarSize,
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
                   return Center(
@@ -643,6 +630,59 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSmallAvatar(String name, String? profileImageUrl) {
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 2),
+      ),
+      child: ClipOval(
+        child: Container(
+          color: AvatarFormatter.getAvatarColor(name),
+          child: _profileImage != null
+              ? Image.file(
+            _profileImage!,
+            fit: BoxFit.cover,
+            width: 36,
+            height: 36,
+          )
+              : profileImageUrl != null
+              ? Image.network(
+            profileImageUrl,
+            fit: BoxFit.cover,
+            width: 36,
+            height: 36,
+            errorBuilder: (context, error, stackTrace) {
+              return Center(
+                child: Text(
+                  AvatarFormatter.getInitials(name),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
+              );
+            },
+          )
+              : Center(
+            child: Text(
+              AvatarFormatter.getInitials(name),
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

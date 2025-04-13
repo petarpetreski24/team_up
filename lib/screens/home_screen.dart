@@ -77,307 +77,308 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             return _buildEmptyState(context);
           }
 
-          return CustomScrollView(
-            slivers: [
-              // Animated App Bar
-              SliverAppBar(
-                expandedHeight: 170,
-                pinned: true,
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                flexibleSpace: FlexibleSpaceBar(
-                  background: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          AppColors.primaryDark,
-                          AppColors.primary,
-                        ],
-                      ),
-                    ),
-                    child: Stack(
-                      children: [
-                        // Animated circles
-                        AnimatedBuilder(
-                          animation: _animationController,
-                          builder: (context, child) {
-                            return Stack(
-                              children: [
-                                // Top right animated circle
-                                Positioned(
-                                  top: -30 + 10 * _getCosValue(_animationController.value * 3),
-                                  right: -30 + 10 * _getSinValue(_animationController.value * 2),
-                                  child: Container(
-                                    width: 120,
-                                    height: 120,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.1),
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                ),
-                                // Middle animated circle
-                                Positioned(
-                                  top: 50 + 15 * _getSinValue(_animationController.value * 5),
-                                  right: 100 + 20 * _getCosValue(_animationController.value * 4),
-                                  child: Container(
-                                    width: 60,
-                                    height: 60,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.08),
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                ),
-                                // Bottom left animated circle
-                                Positioned(
-                                  bottom: -20 + 10 * _getSinValue(_animationController.value * 3),
-                                  left: -20 + 10 * _getCosValue(_animationController.value * 4),
-                                  child: Container(
-                                    width: 100,
-                                    height: 100,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.1),
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
+          return Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.primaryDark,
+                      AppColors.primary,
+                    ],
+                  ),
+                ),
+              ),
 
-                        // User greeting and info
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  if (currentUser != null)
-                                    Container(
-                                      width: 45,
-                                      height: 45,
-                                      decoration: BoxDecoration(
-                                        color: AvatarFormatter.getAvatarColor(currentUser.name),
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: Colors.white.withOpacity(0.3),
-                                          width: 2,
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withOpacity(0.1),
-                                            blurRadius: 10,
-                                            offset: const Offset(0, 4),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          AvatarFormatter.getInitials(currentUser.name),
-                                          style: AppTextStyles.bodyBold.copyWith(
-                                            color: Colors.white,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  const SizedBox(width: 12),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Hello, ${currentUser?.name.split(' ')[0] ?? "Guest"}!',
-                                        style: AppTextStyles.heading3.copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                      Text(
-                                        'Ready to play?',
-                                        style: AppTextStyles.body.copyWith(
-                                          color: Colors.white.withOpacity(0.8),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const Spacer(),
-
-                                ],
-                              ),
-
-                              const Spacer(),
-
-                              if (todayEvents.isNotEmpty)
-                                Row(
+              CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    expandedHeight: 170,
+                    pinned: true,
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                    flexibleSpace: FlexibleSpaceBar(
+                      background: Container(
+                        child: Stack(
+                          children: [
+                            AnimatedBuilder(
+                              animation: _animationController,
+                              builder: (context, child) {
+                                return Stack(
                                   children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 6,
+                                    Positioned(
+                                      top: -30 + 10 * _getCosValue(_animationController.value * 3),
+                                      right: -30 + 10 * _getSinValue(_animationController.value * 2),
+                                      child: Container(
+                                        width: 120,
+                                        height: 120,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.1),
+                                          shape: BoxShape.circle,
+                                        ),
                                       ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.2),
-                                        borderRadius: BorderRadius.circular(16),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withOpacity(0.05),
-                                            blurRadius: 4,
-                                            offset: const Offset(0, 2),
+                                    ),
+                                    Positioned(
+                                      top: 50 + 15 * _getSinValue(_animationController.value * 5),
+                                      right: 100 + 20 * _getCosValue(_animationController.value * 4),
+                                      child: Container(
+                                        width: 60,
+                                        height: 60,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.08),
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      bottom: -20 + 10 * _getSinValue(_animationController.value * 3),
+                                      left: -20 + 10 * _getCosValue(_animationController.value * 4),
+                                      child: Container(
+                                        width: 100,
+                                        height: 100,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.1),
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      if (currentUser != null)
+                                        Container(
+                                          width: 45,
+                                          height: 45,
+                                          decoration: BoxDecoration(
+                                            color: AvatarFormatter.getAvatarColor(currentUser.name),
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: Colors.white.withOpacity(0.3),
+                                              width: 2,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withOpacity(0.1),
+                                                blurRadius: 10,
+                                                offset: const Offset(0, 4),
+                                              ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
-                                      child: Row(
+                                          child: Center(
+                                            child: Text(
+                                              AvatarFormatter.getInitials(currentUser.name),
+                                              style: AppTextStyles.bodyBold.copyWith(
+                                                color: Colors.white,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      const SizedBox(width: 12),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          const Icon(
-                                            Icons.event_available,
-                                            size: 16,
-                                            color: Colors.white,
-                                          ),
-                                          const SizedBox(width: 8),
                                           Text(
-                                            '${todayEvents.length} event${todayEvents.length > 1 ? 's' : ''} today',
-                                            style: AppTextStyles.caption.copyWith(
+                                            'Hello, ${currentUser?.name.split(' ')[0] ?? "Guest"}!',
+                                            style: AppTextStyles.heading3.copyWith(
                                               color: Colors.white,
-                                              fontWeight: FontWeight.w500,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                          Text(
+                                            'Ready to play?',
+                                            style: AppTextStyles.body.copyWith(
+                                              color: Colors.white.withOpacity(0.8),
                                             ),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                  ],
-                                ),
-                            ],
-                          ),
+                                      const Spacer(),
+
+                                    ],
+                                  ),
+
+                                  const Spacer(),
+
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 6,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.2),
+                                          borderRadius: BorderRadius.circular(16),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(0.05),
+                                              blurRadius: 4,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.event_available,
+                                              size: 16,
+                                              color: Colors.white,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              '${todayEvents.length} events today',
+                                              style: AppTextStyles.caption.copyWith(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-                // Rounded bottom edge
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(20),
-                    bottomRight: Radius.circular(20),
-                  ),
-                ),
-              ),
 
-              // Content sections
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Your Events',
-                        style: AppTextStyles.heading3,
+                  SliverToBoxAdapter(
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
                       ),
-                      if (userEvents.isNotEmpty)
-                        TextButton(
-                          onPressed: () {},
-                          child: Text(
-                            '',
-                            style: AppTextStyles.caption.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w600,
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 20),
+
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Your Events',
+                                  style: AppTextStyles.heading3,
+                                ),
+                                if (userEvents.isNotEmpty)
+                                  TextButton(
+                                    onPressed: () {},
+                                    child: Text(
+                                      '',
+                                      style: AppTextStyles.caption.copyWith(
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                              ],
                             ),
                           ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
 
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  child: userEvents.isEmpty
-                      ? _buildEmptySection(
-                    title: 'No events yet',
-                    message: 'You haven\'t joined any events. Find an event or create your own!',
-                    icon: Icons.event_busy,
-                  )
-                      : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: userEvents.length,
-                    itemBuilder: (context, index) {
-                      final event = userEvents[index];
-                      final isAccepted = event.acceptedPlayers.contains(currentUser?.id);
-                      return EventCard(
-                        event: event,
-                        status: isAccepted ? 'Accepted' : 'Pending',
-                        onTap: () => Navigator.pushNamed(
-                          context,
-                          '/event-details',
-                          arguments: {'eventId': event.id},
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Events Near You',
-                        style: AppTextStyles.heading3,
-                      ),
-                      if (availableEvents.isNotEmpty)
-                        TextButton(
-                          onPressed: () {},
-                          child: Text(
-                            '',
-                            style: AppTextStyles.caption.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w600,
+                          SizedBox(
+                            child: userEvents.isEmpty
+                                ? _buildEmptySection(
+                              title: 'No events yet',
+                              message: 'You haven\'t joined any events. Find an event or create your own!',
+                              icon: Icons.event_busy,
+                            )
+                                : ListView.builder(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: userEvents.length,
+                              itemBuilder: (context, index) {
+                                final event = userEvents[index];
+                                final isAccepted = event.acceptedPlayers.contains(currentUser?.id);
+                                return EventCard(
+                                  event: event,
+                                  status: isAccepted ? 'Accepted' : 'Pending',
+                                  onTap: () => Navigator.pushNamed(
+                                    context,
+                                    '/event-details',
+                                    arguments: {'eventId': event.id},
+                                  ),
+                                );
+                              },
                             ),
                           ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
 
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  child: availableEvents.isEmpty
-                      ? _buildEmptySection(
-                    title: 'No events available',
-                    message: 'There are no events available to join at the moment. Check again later!',
-                    icon: Icons.search_off,
-                  )
-                      : ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: availableEvents.length,
-                    itemBuilder: (context, index) {
-                      final event = availableEvents[index];
-                      final spotsLeft = event.maxPlayers - event.acceptedPlayers.length;
-                      return EventCard(
-                        event: event,
-                        spotsLeft: spotsLeft,
-                        onTap: () => Navigator.pushNamed(
-                          context,
-                          '/event-details',
-                          arguments: {'eventId': event.id},
-                        ),
-                      );
-                    },
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Events Near You',
+                                  style: AppTextStyles.heading3,
+                                ),
+                                if (availableEvents.isNotEmpty)
+                                  TextButton(
+                                    onPressed: () {},
+                                    child: Text(
+                                      '',
+                                      style: AppTextStyles.caption.copyWith(
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+
+                          SizedBox(
+                            child: availableEvents.isEmpty
+                                ? _buildEmptySection(
+                              title: 'No events available',
+                              message: 'There are no events available to join at the moment. Check again later!',
+                              icon: Icons.search_off,
+                            )
+                                : ListView.builder(
+                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: availableEvents.length,
+                              itemBuilder: (context, index) {
+                                final event = availableEvents[index];
+                                final spotsLeft = event.maxPlayers - event.acceptedPlayers.length;
+                                return EventCard(
+                                  event: event,
+                                  spotsLeft: spotsLeft,
+                                  onTap: () => Navigator.pushNamed(
+                                    context,
+                                    '/event-details',
+                                    arguments: {'eventId': event.id},
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ],
           );
