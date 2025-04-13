@@ -11,6 +11,7 @@ import '../utils/sport_formatter.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
 import '../utils/constants.dart';
+import './main_screen.dart';
 
 class CreateEventScreen extends StatefulWidget {
   const CreateEventScreen({Key? key}) : super(key: key);
@@ -252,7 +253,52 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
       await eventsProvider.createEvent(event);
       if (mounted) {
-        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text('Event created successfully!',
+                      style: AppTextStyles.body.copyWith(color: Colors.white)),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        );
+        void _resetForm() {
+          setState(() {
+            _selectedSport = null;
+            _selectedDate = DateTime.now();
+            _selectedTime = TimeOfDay.now();
+            _maxPlayers = 4;
+            _locationController.clear();
+            _priceController.clear();
+            _descriptionController.clear();
+            _selectedLocation = const LatLng(0, 0);
+            _markers = {};
+          });
+        }
+
+        _resetForm();
+
+        final NavigatorState navigator = Navigator.of(context);
+
+        navigator.maybePop().then((_) {
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation1, animation2) => const MainScreen(),
+              transitionDuration: Duration.zero,
+            ),
+          );
+        });
       }
     } catch (e) {
       if (mounted) {
